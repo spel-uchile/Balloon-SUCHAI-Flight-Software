@@ -28,7 +28,6 @@ import struct
 
 from threading import Thread
 from time import sleep
-from gps import *
 from struct import *
 
 sys.path.append('../')
@@ -187,6 +186,9 @@ def get_parameters():
 if __name__ == '__main__':
     # Get arguments
     args = get_parameters()
+
+    if(not args.sim):
+        from gps import *
 
     gps = GpsComInterface(sim=args.sim)
 
