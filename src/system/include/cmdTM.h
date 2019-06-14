@@ -53,19 +53,28 @@ int tm_parse_status(char *fmt, char *params, int nparams);
 /**
  * Send last structs data stored as payload in csp frame.
  * @param fmt "%u %u"
- * @param params "<payload> <destination node>"
+ * @param params "<destination node> <payload> "
  * @param nparams 2
  * @return CMD_OK or CMD_FAIL
  */
-int tm_send_pay_data(char *fmt, char *params, int nparams);
+int tm_send_last(char *fmt, char *params, int nparams);
 
 /**
- * Send all structs data stored as payload in multimple csp frames.
+ * Send all structs data stored as payload in multiple csp frames.
  * @param fmt "%u %u"
- * @param params "<payload> <destination node>"
+ * @param params "<destination node> <payload>"
  * @param nparams 2
  * @return CMD_OK or CMD_FAIL
  */
-int tm_send_all_pay_data(char *fmt, char *params, int nparams);
+int tm_send_all(char *fmt, char *params, int nparams);
+
+/**
+ * Acknowledge k samples of a payload.
+ * @param fmt "%u %u"
+ * @param params "<payload> <k samples>"
+ * @param nparams 2
+ * @return CMD_OK or CMD_FAIL
+ */
+int tm_set_ack(char *fmt, char *params, int nparams);
 
 #endif //CMDTM_H

@@ -71,8 +71,7 @@ int send_iridium_data(char *fmt, char *params, int nparams) {
     dpl_data_t dpl_data_;
 
     //cmd_t *cmd_send_iridium = cmd_get_str("send_rpt");
-    if(dat_get_recent_payload_sample(&gps_data_, gps_sensors, 0)!=-1)
-    {
+    if(dat_get_recent_payload_sample(&gps_data_, gps_sensors, 0)!=-1) {
         LOGI(tag, "Obtaining gps_data, time:%u,  lat:%f,  lon:%f, alt:%f, vel_x:%f, vel_y:%f, sat_num:%d, mode:%d", gps_data_.timestamp ,gps_data_.latitude, gps_data_.longitude, gps_data_.height, gps_data_.velocity_x, gps_data_.velocity_y, gps_data_.satellites_number, gps_data_.mode);
     } else {
         LOGE(tag, "Could not obtain gps value");

@@ -25,8 +25,9 @@ void cmd_tm_init(void)
 {
     cmd_add("tm_parse_status", tm_parse_status, "", 0);
     cmd_add("tm_send_status", tm_send_status, "%d", 1);
-    cmd_add("tm_send_payload", tm_send_all_pay_data, "%u %u", 2);
-    cmd_add("tm_send_payload_last", tm_send_pay_data, "%u %u", 2);
+    cmd_add("tm_send_last", tm_send_last, "%u %u", 2);
+    cmd_add("tm_send_all", tm_send_all, "%u %u", 2);
+    cmd_add("tm_set_ack", tm_set_ack, "%u %u", 2);
 }
 
 int tm_send_status(char *fmt, char *params, int nparams)
@@ -84,7 +85,7 @@ int tm_parse_status(char *fmt, char *params, int nparams)
     return CMD_OK;
 }
 
-int tm_send_pay_data(char *fmt, char *params, int nparams)
+int tm_send_last(char *fmt, char *params, int nparams)
 {
     if(params == NULL)
     {
@@ -94,8 +95,7 @@ int tm_send_pay_data(char *fmt, char *params, int nparams)
 
     uint32_t dest_node;
     uint32_t payload;
-    //Format: <node>
-    if(nparams == sscanf(params, fmt, &payload, &dest_node))
+    if(nparams == sscanf(params, fmt, &dest_node, &payload))
     {
         if(payload >= last_sensor) {
             return CMD_FAIL;
@@ -104,15 +104,16 @@ int tm_send_pay_data(char *fmt, char *params, int nparams)
         com_data_t data;
         memset(&data, 0, sizeof(data));
         data.node = (uint8_t)dest_node;
-        data.frame.nframe = 0;
         data.frame.type = (uint16_t)(TM_TYPE_PAYLOAD + payload);
 
         int n_structs = (COM_FRAME_MAX_LEN) / data_map[payload].size;
         int index_pay = dat_get_system_var(data_map[payload].sys_index);
+        data.frame.nframe = (uint16_t) (index_pay-n_structs);
 
         LOGI(tag, "index_payload: %d", index_pay);
         if(index_pay < n_structs) {
             n_structs = index_pay;
+            data.frame.nframe = 0;
         }
 
         LOGI(tag, "Sending %d structs of payload %d", n_structs, (int)payload);
@@ -123,7 +124,7 @@ int tm_send_pay_data(char *fmt, char *params, int nparams)
         uint16_t payload_size = data_map[payload].size;
         for(i=0; i < n_structs; ++i) {
             char buff[data_map[payload].size];
-            dat_get_recent_payload_sample(buff, payload, i);
+            dat_get_recent_payload_sample(buff, payload, n_structs-1-i);
             mem_delay = (i*payload_size);
             memcpy(data.frame.data.data8+mem_delay, buff, payload_size);
         }
@@ -138,7 +139,7 @@ int tm_send_pay_data(char *fmt, char *params, int nparams)
     }
 }
 
-int tm_send_all_pay_data(char *fmt, char *params, int nparams)
+int tm_send_all(char *fmt, char *params, int nparams)
 {
     if(params == NULL)
     {
@@ -189,10 +190,47 @@ int tm_send_all_pay_data(char *fmt, char *params, int nparams)
             com_send_data("", (char *)&data, 0);
 
             print_buff(data.frame.data.data8, payload_size*structs_per_frame);
-//            if (com_send_data("", (char *)&data, 0) != CMD_OK) {
-//                return CMD_FAIL;
-//            }
         }
         return CMD_OK;
+    }
+}
+
+int tm_set_ack(char *fmt, char *params, int nparams) {
+    if(params == NULL)
+    {
+        LOGE(tag, "params is null!");
+        return CMD_ERROR;
+    }
+
+    uint32_t payload;
+    uint32_t k_samples;
+
+    if(nparams == sscanf(params, fmt, &payload, &k_samples)) {
+
+        if(payload >= last_sensor) {
+            LOGE(tag, "payload not found")
+            return CMD_FAIL;
+        }
+
+        if(k_samples < 1) {
+            LOGE(tag, "could not acknowledge %d", k_samples)
+            return CMD_FAIL;
+        }
+
+        int ack_pay = dat_get_system_var(data_map[payload].sys_ack);
+        int index_pay = dat_get_system_var(data_map[payload].sys_index);
+
+        if(ack_pay== -1 || index_pay==-1) {
+            LOGE(tag, "something bad happen");
+            return CMD_FAIL;
+        }
+
+        ack_pay += k_samples;
+        if(ack_pay > index_pay) {
+            ack_pay = index_pay;
+        }
+
+        dat_set_system_var(data_map[payload].sys_ack ,ack_pay);
+        CMD_OK;
     }
 }
