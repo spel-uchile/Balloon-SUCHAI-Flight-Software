@@ -10,13 +10,14 @@ void cmd_subsys_init(void) {
     cmd_add("get_gps_data", get_gps_data, "", 0);
     cmd_add("get_dpl_data", get_dpl_data, "", 0);
     cmd_add("get_prs_data", get_prs_data, "", 0);
-    cmd_add("open_dpl_la", open_dpl_la, "", 0);
-    cmd_add("close_dpl_la", close_dpl_la, "", 0);
+    cmd_add("open_dpl_1", open_dpl_1, "", 0);
+    cmd_add("open_dpl_2", open_dpl_2, "", 0);
     cmd_add("open_dpl_sm", open_dpl_sm, "", 0);
     cmd_add("close_dpl_sm", close_dpl_sm, "", 0);
     cmd_add("send_iridium_data", send_iridium_data, "", 2);
     cmd_add("send_iridium_msg1", send_iridium_msg1, "", 0);
     cmd_add("send_iridium_msg2", send_iridium_msg2, "", 0);
+    cmd_add("run_sstv", run_sstv, "", 0);
 }
 
 int get_gps_data(char *fmt, char *params, int nparams) {
@@ -40,26 +41,26 @@ int get_prs_data(char *fmt, char *params, int nparams) {
     return CMD_OK;
 }
 
-int open_dpl_la(char *fmt, char *params, int nparams) {
-    char* param="12 open_dpl_la";
+int open_dpl_1(char *fmt, char *params, int nparams) {
+    char* param="12 open_dpl_1";
     com_send_rpt("%d %s", param, 2);
     return CMD_OK;
 }
 
-int close_dpl_la(char *fmt, char *params, int nparams) {
-    char* param="12 close_dpl_la";
+int open_dpl_2(char *fmt, char *params, int nparams) {
+    char* param="12 open_dpl_2";
     com_send_rpt("%d %s", param, 2);
     return CMD_OK;
 }
 
 int open_dpl_sm(char *fmt, char *params, int nparams) {
-    char* param="12 open_dpl_sm";
+    char* param="8 open_dpl_sm";
     com_send_rpt("%d %s", param, 2);
     return CMD_OK;
 }
 
 int close_dpl_sm(char *fmt, char *params, int nparams) {
-    char* param="12 close_dpl_sm";
+    char* param="8 close_dpl_sm";
     com_send_rpt("%d %s", param, 2);
     return CMD_OK;
 }
@@ -76,7 +77,7 @@ int send_iridium_data(char *fmt, char *params, int nparams) {
     dat_get_recent_payload_sample(&prs_data_, dpl_sensors, 1);
     LOGI(tag, "Obtaining gps_data, time:%u,  lat:%f,  lon:%f, alt:%f, vel_x:%f, vel_y:%f, sat_num:%d, mode:%d", gps_data_.timestamp ,gps_data_.latitude, gps_data_.longitude, gps_data_.height, gps_data_.velocity_x, gps_data_.velocity_y, gps_data_.satellites_number, gps_data_.mode);
     LOGI(tag, "Obtaining prs_data, time:%u,  prs:%f,  temp:%f, alt:%f", prs_data_.timestamp ,prs_data_.pressure, prs_data_.temperature, prs_data_.height)
-    LOGI(tag, "Obtaining dpl_data, time:%u,  lin_act:%d,  serv_mot:%d", dpl_data_.timestamp ,dpl_data_.lineal_actuator, dpl_data_.servo_motor);
+    LOGI(tag, "Obtaining dpl_data, time:%u,  port_status:%d", dpl_data_.timestamp ,dpl_data_.port_status);
 
 //    com_data_t data;
 //    data.node = (uint8_t)6;
@@ -100,6 +101,12 @@ int send_iridium_msg1(char *fmt, char *params, int nparams) {
 
 int send_iridium_msg2(char *fmt, char *params, int nparams) {
     char* param="6 EndMission";
+    com_send_rpt("%d %s", param, 2);
+    return CMD_OK;
+}
+
+int run_sstv(char *fmt, char *params, int nparams) {
+    char *param = "8 run_sstv";
     com_send_rpt("%d %s", param, 2);
     return CMD_OK;
 }

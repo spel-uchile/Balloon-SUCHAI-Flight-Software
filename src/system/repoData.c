@@ -46,7 +46,7 @@ struct map data_map[last_sensor] = {
         { "langmuir_data", (uint16_t) (sizeof(langmuir_data_t)), dat_mem_lang, "%u %f %f %f %d", "timestamp sweep_voltage plasma_voltage plasma_temperature particles_counter"},
         { "gps_data",      (uint16_t) (sizeof(gps_data_t)), dat_mem_gps, "%u %f %f %f %f %f %d %d", "timestamp latitude longitude height velocity_x velocity_y satellites_number mode"},
         { "prs_data",      (uint16_t) (sizeof(prs_data_t)), dat_mem_prs, "%u %f %f %f", "timestamp pressure temperature height"},
-        { "dpl_data",      (uint16_t) (sizeof(dpl_data_t)), dat_mem_dpl, "%u %d %d", "timestamp lineal_actuator servo_motor"}
+        { "dpl_data",      (uint16_t) (sizeof(dpl_data_t)), dat_mem_dpl, "%u %d", "timestamp port_status"}
 };
 
 void initialize_all_vars(){
