@@ -60,13 +60,22 @@ int tm_parse_status(char *fmt, char *params, int nparams);
 int tm_send_last(char *fmt, char *params, int nparams);
 
 /**
- * Send all structs data stored as payload in multiple csp frames.
+ * Send all structs data stored as payload in multiple csp frames from last acknowledge.
  * @param fmt "%u %u"
  * @param params "<destination node> <payload>"
  * @param nparams 2
  * @return CMD_OK or CMD_FAIL
  */
 int tm_send_all(char *fmt, char *params, int nparams);
+
+/**
+ * Send k structs data stored as payload in multiple csp frames form last acknowledge.
+ * @param fmt "%u %u %u"
+ * @param params "<destination node> <payload> <k samples>"
+ * @param nparams 3
+ * @return CMD_OK or CMD_FAIL
+ */
+int tm_send_from(char *fmt, char *params, int nparams);
 
 /**
  * Acknowledge k samples of a payload.
