@@ -18,6 +18,7 @@ void cmd_subsys_init(void) {
     cmd_add("send_iridium_msg1", send_iridium_msg1, "", 0);
     cmd_add("send_iridium_msg2", send_iridium_msg2, "", 0);
     cmd_add("run_sstv", run_sstv, "", 0);
+    cmd_add("send_xbee_data", send_xbee_data, "", 0);
 }
 
 int get_gps_data(char *fmt, char *params, int nparams) {
@@ -107,6 +108,12 @@ int send_iridium_msg2(char *fmt, char *params, int nparams) {
 
 int run_sstv(char *fmt, char *params, int nparams) {
     char *param = "8 run_sstv";
+    com_send_rpt("%d %s", param, 2);
+    return CMD_OK;
+}
+
+int send_xbee_data(char *fmt, char *params, int nparams) {
+    char *param = "16 send_xbee_data";
     com_send_rpt("%d %s", param, 2);
     return CMD_OK;
 }

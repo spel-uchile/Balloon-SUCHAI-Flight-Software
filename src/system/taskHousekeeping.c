@@ -25,14 +25,14 @@ static const char *tag = "Housekeeping";
 /* Flight Plan*/
 
 enum phase_n{
-    phase_a0, // 0: (A0) testing,       [0, 20]     min  -->20 min
-    phase_a1, // 1: (A1) preparation,   [21, 26]    min  -->05 min
-    phase_a,  // 2: (A) ascend,         [27, 60]    min  -->33 min
-    phase_b,  // 3: (B) equilibrium,    [61, 95]    min  -->34 min
-    phase_b1, // 4: (B1) deploy1,       [96, 101]   min  -->05 min
-    phase_b2, // 5: (B2) deploy2,       [102, 107]  min  -->05 min
-    phase_c,  // 6: (C) descend,        [108, 138]  min  -->30 min
-    phase_c1, // 7: (C1) landing        [139, inf]  min  -->
+    phase_a0, // 0: (A0) testing,       [0, 20]      min  -->20 min
+    phase_a1, // 1: (A1) preparation,   [21, 26]     min  -->05 min
+    phase_a,  // 2: (A) ascend,         [27, 1h]     min  -->33 min
+    phase_b,  // 3: (B) equilibrium,    [1h1, 1h35]  min  -->34 min
+    phase_b1, // 4: (B1) deploy1,       [1h36, 1h41] min  -->05 min
+    phase_b2, // 5: (B2) deploy2,       [1h42, 1h47] min  -->05 min
+    phase_c,  // 6: (C) descend,        [1h48, 1h78] min  -->30 min
+    phase_c1, // 7: (C1) landing        [1h79, inf]  min  -->
 };
 
 
@@ -75,18 +75,20 @@ void taskHousekeeping(void *param)
         /**
          * Phases Setup
          */
+         /*
         if (elapsed_sec == 1 || elapsed_sec == 2 || elapsed_sec == 3 || elapsed_sec == 4 ) {
             cmd_t *cmd_open_la = cmd_get_str("open_dpl_la");
             cmd_send(cmd_open_la);
 
-            /*set pi-camera looking at the horizon*/
+            //set pi-camera looking at the horizon
             cmd_t *cmd_close_sm = cmd_get_str("close_dpl_sm");
             cmd_send(cmd_close_sm);
-        }
+        }*/
 
         /**
          * In all Phases sample prs and gps every 10 seconds
          * sample dpl every 1 min
+         * send sstv every 5 min
          */
         LOGD(tag, "elapsed second %u", elapsed_sec);
         change_system_phase();
@@ -106,36 +108,44 @@ void taskHousekeeping(void *param)
             cmd_t *cmd_get_dpl = cmd_get_str("get_dpl_data");
             cmd_send(cmd_get_dpl);
         }
+        if ((elapsed_sec % _05min_check) == 0) {
+            cmd_t *cmd_run_sstv = cmd_get_str("run_sstv");
+            cmd_send(cmd_run_sstv);
+        }
+
+        if ((elapsed_sec % _01min_check) == 0) {
+            cmd_t *cmd_send_xbee_data = cmd_get_str("send_xbee_data");
+            cmd_send(cmd_send_xbee_data);
+        }
 
 
         /**
          * In Phase A0: Test main systems, 20 min
             -deploy actuator
-            -iridium module
             -camera
             -sstv
         */
         if(phase == phase_a0) {
             /*Test open Lineal Actuator*/
-            if ((elapsed_sec % _01min_check) == 0) {
+            if ((elapsed_sec % _05min_check) == 0) {
                 cmd_t *cmd_open_dpl_1 = cmd_get_str("open_dpl_1");
                 cmd_send(cmd_open_dpl_1);
             }
 
-            if ((elapsed_sec % _01min_check) == 0) {
+            /*if ((elapsed_sec % _01min_check) == 0) {
                 cmd_t *cmd_open_sm = cmd_get_str("open_dpl_sm");
                 cmd_send(cmd_open_sm);
-            }
+            }*/
 
-            if ((elapsed_sec % _01min_check) == 30) {
+            /*if ((elapsed_sec % _01min_check) == 30) {
                 cmd_t *cmd_close_sm = cmd_get_str("close_dpl_sm");
                 cmd_send(cmd_close_sm);
-            }
+            }*/
 
-            if ((elapsed_sec % _05min_check) == 0) {
+            /*if ((elapsed_sec % _05min_check) == 0) {
                 cmd_t *cmd_run_sstv = cmd_get_str("run_sstv");
                 cmd_send(cmd_run_sstv);
-            }
+            }*/
         }
 
         /**
@@ -145,43 +155,43 @@ void taskHousekeeping(void *param)
         */
         if(phase == phase_a1) {
             /*Test open Lineal Actuator*/
-            if ((elapsed_sec % _01min_check) == 0) {
+            /*if ((elapsed_sec % _01min_check) == 0) {
                 cmd_t *cmd_open_dpl_1 = cmd_get_str("open_dpl_1");
                 cmd_send(cmd_open_dpl_1);
-            }
+            }*/
 
-            if ((elapsed_sec % _01min_check) == 0) {
+            /*if ((elapsed_sec % _01min_check) == 0) {
                 cmd_t *cmd_close_sm = cmd_get_str("close_dpl_sm");
                 cmd_send(cmd_close_sm);
-            }
+            }*/
 
-            if ((elapsed_sec % _01min_check) == 0) {
+            /*if ((elapsed_sec % _01min_check) == 0) {
                 cmd_t *cmd_send_iridium_msg1 = cmd_get_str("send_iridium_msg1");
                 cmd_send(cmd_send_iridium_msg1);
-            }
+            }*/
         }
 
         /**
          * In Phase A: ascend, 88 min
          * sstv
         */
-        if(phase == phase_a) {
+        /*if(phase == phase_a) {
             if ((elapsed_sec % _15min_check) == 0) {
                 cmd_t *cmd_run_sstv = cmd_get_str("run_sstv");
                 cmd_send(cmd_run_sstv);
             }
-        }
+        }*/
 
         /**
          * In Phase B: equilibrium, 58 min
          * sstv
         */
-        if(phase == phase_b) {
+        /*if(phase == phase_b) {
             if ((elapsed_sec % _15min_check) == 0) {
                 cmd_t *cmd_run_sstv = cmd_get_str("run_sstv");
                 cmd_send(cmd_run_sstv);
             }
-        }
+        }*/
 
         /**
              * In Phase B1: deploy, 05 min
@@ -190,18 +200,14 @@ void taskHousekeeping(void *param)
                 -send data through iridium
             */
         if(phase == phase_b1 || (prs_data_.height>=_deploy_height && prs_data_.height<_deploy_height_max)) {
-            if ((elapsed_sec % _01min_check) == 0) {
+            /*if ((elapsed_sec % _01min_check) == 0) {
                 cmd_t *cmd_open_sm = cmd_get_str("open_dpl_sm");
                 cmd_send(cmd_open_sm);
-            }
+            }*/
             if(phase == phase_b1) {
-                if ((elapsed_sec % 10) == 0) {
+                if ((elapsed_sec % 20) == 0) {
                     cmd_t *cmd_open_dpl_1 = cmd_get_str("open_dpl_1");
                     cmd_send(cmd_open_dpl_1);
-                }
-                if ((elapsed_sec % _02min_check) == 0) {
-                    cmd_t *cmd_run_sstv = cmd_get_str("run_sstv");
-                    cmd_send(cmd_run_sstv);
                 }
             }
         }
@@ -210,36 +216,32 @@ void taskHousekeeping(void *param)
          * In Phase B2: deploy, 05 min
             -point pi-camera to the starts (try cmd every 1 min)
         */
-        if(phase == phase_b2) {
+        /*if(phase == phase_b2) {
             if ((elapsed_sec % _01min_check) == 0) {
                 cmd_t *cmd_open_sm = cmd_get_str("open_dpl_sm");
                 cmd_send(cmd_open_sm);
             }
-            if ((elapsed_sec % _02min_check) == 0) {
-                cmd_t *cmd_run_sstv = cmd_get_str("run_sstv");
-                cmd_send(cmd_run_sstv);
-            }
-        }
+        }*/
 
         /**
              * In Phase C: descend, 30 min
                 -point pi-camera to the horizon (try cmd every 10 seconds)
                 -send img (sstv)
-            */
+        */
         if(phase == phase_c) {
             /*looking to the horizon*/
-            if ((elapsed_sec % _05min_check) == 0) {
+            /*if ((elapsed_sec % _05min_check) == 0) {
                 cmd_t *cmd_close_sm = cmd_get_str("close_dpl_sm");
                 cmd_send(cmd_close_sm);
-            }
-            if ((elapsed_sec % _05min_check) == 150) {
+            }*/
+            /*if ((elapsed_sec % _05min_check) == 150) {
                 cmd_t *cmd_open_sm = cmd_get_str("open_dpl_sm");
                 cmd_send(cmd_open_sm);
-            }
-            if ((elapsed_sec % _10min_check) == 0) {
+            }*/
+            /*if ((elapsed_sec % _10min_check) == 0) {
                 cmd_t *cmd_run_sstv = cmd_get_str("run_sstv");
                 cmd_send(cmd_run_sstv);
-            }
+            }*/
         }
 
         /**
@@ -247,10 +249,10 @@ void taskHousekeeping(void *param)
             -send img (sstv)
         */
         if(phase == phase_c1) {
-            if ((elapsed_sec % _10min_check) == 0) {
+            /*if ((elapsed_sec % _10min_check) == 0) {
                 cmd_t *cmd_run_sstv = cmd_get_str("run_sstv");
                 cmd_send(cmd_run_sstv);
-            }
+            }*/
         }
 
         /**

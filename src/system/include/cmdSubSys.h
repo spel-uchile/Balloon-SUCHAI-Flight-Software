@@ -24,5 +24,6 @@ int send_iridium_data(char *fmt, char *params, int nparams);
 int send_iridium_msg1(char *fmt, char *params, int nparams);
 int send_iridium_msg2(char *fmt, char *params, int nparams);
 int run_sstv(char *fmt, char *params, int nparams);
+int send_xbee_data(char *fmt, char *params, int nparams);
 
 #endif //SUCHAI_FLIGHT_SOFTWARE_CMDSUBSYS_H
