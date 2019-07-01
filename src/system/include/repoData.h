@@ -52,10 +52,6 @@ typedef union fvalue{
 /** The repository's name */
 #define DAT_REPO_SYSTEM "dat_system"    ///< Status variables table name
 
-#define DAT_GPS_TABLE "gps_table"
-#define DAT_PRS_TABLE "pressure_table"
-#define DAT_DPL_TABLE "deploy_table"
-
 /** Copy a system @var to a status struct @st */
 #define DAT_CPY_SYSTEM_VAR(st, var) st->var = dat_get_system_var(var)
 
@@ -149,13 +145,22 @@ typedef enum dat_system {
     dat_eps_temp_bat0,            ///< Battery temperature sensor
 
     /// Memory: Current payload memory addresses
-    dat_mem_temp,                 ///< Temperature data
+    dat_mem_temp,                 ///< Temperature data index
     dat_mem_ads,                  ///< ADS data index
     dat_mem_eps,                  ///< EPS data index
     dat_mem_lang,                 ///< Langmuir data index
     dat_mem_gps,                  ///< GPS data index
     dat_mem_prs,                  ///< PRS data index
     dat_mem_dpl,                  ///< DPL data index
+
+    /// Memory: Current send acknowledge data
+    dat_mem_ack_temp,                 ///< Temperature data acknowledge
+    dat_mem_ack_ads,                  ///< ADS data index acknowledge
+    dat_mem_ack_eps,                  ///< EPS data index acknowledge
+    dat_mem_ack_lang,                 ///< Langmuir data index acknowledge
+    dat_mem_ack_gps,                  ///< GPS data index acknowledge
+    dat_mem_ack_prs,                  ///< PRS data index acknowledge
+    dat_mem_ack_dpl,                  ///< DPL data index acknowledge
 
     /// Add custom status variables here
     dat_balloon_phase,          ///< Balloon phase (0: (A0) base, 1: (A) ascend, 2: (B) equilibrium, 3: (B1) deploy1, 4: (B2) deploy2, 5: (C) descend, 6: (C1) landing).
@@ -224,10 +229,22 @@ typedef struct __attribute__((packed)) dat_status_s {
     uint32_t dat_eps_temp_bat0;     ///< Battery temperature sensor
 
     /// Memory: Current payload memory address
-    uint32_t dat_mem_temp;          ///< Temperature data
-    uint32_t dat_mem_ads;           ///< ADS data
-    uint32_t dat_mem_eps;           ///< EPS data
-    uint32_t dat_mem_lang;
+    uint32_t dat_mem_temp;          ///< Temperature data index
+    uint32_t dat_mem_ads;           ///< ADS data index
+    uint32_t dat_mem_eps;           ///< EPS data index
+    uint32_t dat_mem_lang;          ///< Langmuir data index
+    uint32_t dat_mem_gps;           ///< GPS data index
+    uint32_t dat_mem_prs;           ///< PRS data index
+    uint32_t dat_mem_dpl;           ///< DPL data index
+
+    /// Memory: Current send acknowledge data
+    uint32_t dat_mem_ack_temp;      ///< Temperature data acknowledge
+    uint32_t dat_mem_ack_ads;       ///< ADS data index acknowledge
+    uint32_t dat_mem_ack_eps;       ///< EPS data index acknowledge
+    uint32_t dat_mem_ack_lang;      ///< Langmuir data index acknowledge
+    uint32_t dat_mem_ack_gps;       ///< GPS data index acknowledge
+    uint32_t dat_mem_ack_prs;       ///< PRS data index acknowledge
+    uint32_t dat_mem_ack_dpl;       ///< DPL data index acknowledge
 
     /// Add custom status variables here
     //uint32_t dat_custom;          ///< Variable description
@@ -337,7 +354,8 @@ typedef struct dpl_data {
 extern struct map {
     char table[30];
     uint16_t  size;
-    int sys_index;
+    uint32_t sys_index;
+    uint32_t sys_ack;
     char data_order[50];
     char var_names[200];
 } data_map[last_sensor];

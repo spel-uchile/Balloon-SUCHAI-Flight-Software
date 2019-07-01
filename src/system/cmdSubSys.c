@@ -19,6 +19,7 @@ void cmd_subsys_init(void) {
     cmd_add("send_iridium_msg2", send_iridium_msg2, "", 0);
     cmd_add("run_sstv", run_sstv, "", 0);
     cmd_add("send_xbee_data", send_xbee_data, "", 0);
+    cmd_add("send_sun_data", send_sun_data, "", 0);
 }
 
 int get_gps_data(char *fmt, char *params, int nparams) {
@@ -73,12 +74,23 @@ int send_iridium_data(char *fmt, char *params, int nparams) {
     dpl_data_t dpl_data_;
 
     //cmd_t *cmd_send_iridium = cmd_get_str("send_rpt");
-    dat_get_recent_payload_sample(&gps_data_, gps_sensors, 1);
-    dat_get_recent_payload_sample(&prs_data_, prs_sensors, 1);
-    dat_get_recent_payload_sample(&prs_data_, dpl_sensors, 1);
-    LOGI(tag, "Obtaining gps_data, time:%u,  lat:%f,  lon:%f, alt:%f, vel_x:%f, vel_y:%f, sat_num:%d, mode:%d", gps_data_.timestamp ,gps_data_.latitude, gps_data_.longitude, gps_data_.height, gps_data_.velocity_x, gps_data_.velocity_y, gps_data_.satellites_number, gps_data_.mode);
-    LOGI(tag, "Obtaining prs_data, time:%u,  prs:%f,  temp:%f, alt:%f", prs_data_.timestamp ,prs_data_.pressure, prs_data_.temperature, prs_data_.height)
-    LOGI(tag, "Obtaining dpl_data, time:%u,  port_status:%d", dpl_data_.timestamp ,dpl_data_.port_status);
+    if(dat_get_recent_payload_sample(&gps_data_, gps_sensors, 0)!=-1) {
+        LOGI(tag, "Obtaining gps_data, time:%u,  lat:%f,  lon:%f, alt:%f, vel_x:%f, vel_y:%f, sat_num:%d, mode:%d", gps_data_.timestamp ,gps_data_.latitude, gps_data_.longitude, gps_data_.height, gps_data_.velocity_x, gps_data_.velocity_y, gps_data_.satellites_number, gps_data_.mode);
+    } else {
+        LOGE(tag, "Could not obtain gps value");
+    }
+
+    if(dat_get_recent_payload_sample(&prs_data_, prs_sensors, 0)!=-1) {
+        LOGI(tag, "Obtaining prs_data, time:%u,  prs:%f,  temp:%f, alt:%f", prs_data_.timestamp ,prs_data_.pressure, prs_data_.temperature, prs_data_.height)
+    } else {
+        LOGE(tag, "Could not obtain prs value");
+    }
+
+    if(dat_get_recent_payload_sample(&dpl_data_, dpl_sensors, 0)!=-1) {
+        LOGI(tag, "Obtaining dpl_data, time:%u,  lin_act:%d,  serv_mot:%d", dpl_data_.timestamp ,dpl_data_.port_status);
+    } else {
+        LOGE(tag, "Could not obtain dpl value");
+    }
 
 //    com_data_t data;
 //    data.node = (uint8_t)6;
@@ -114,6 +126,12 @@ int run_sstv(char *fmt, char *params, int nparams) {
 
 int send_xbee_data(char *fmt, char *params, int nparams) {
     char *param = "16 send_xbee_data";
+    com_send_rpt("%d %s", param, 2);
+    return CMD_OK;
+}
+
+int send_sun_data(char *fmt, char *params, int nparams) {
+    char *param = "16 send_sun_data";
     com_send_rpt("%d %s", param, 2);
     return CMD_OK;
 }

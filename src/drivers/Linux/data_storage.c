@@ -9,6 +9,7 @@ static const char *tag = "data_storage";
 static sqlite3 *db = NULL;
 PGconn *conn = NULL;
 char* fp_table = "flightPlan";
+char fs_db_name[15];
 char postgres_conf_s[30];
 
 static int dummy_callback(void *data, int argc, char **argv, char **names);
@@ -34,7 +35,56 @@ int storage_init(const char *file)
         return 0;
     }
 #elif SCH_STORAGE_MODE == 2
-    sprintf(postgres_conf_s, "user=%s dbname=fs_db", SCH_STORAGE_PGUSER);
+    sprintf(fs_db_name, "fs_db_%u", SCH_COMM_ADDRESS);
+    // Check if databse exist by connecting to its own db
+    sprintf(postgres_conf_s, "user=%s dbname=%s", SCH_STORAGE_PGUSER, SCH_STORAGE_PGUSER);
+    conn = PQconnectdb(postgres_conf_s);
+
+    if (PQstatus(conn) == CONNECTION_BAD) {
+        LOGE(tag, "Connection to database %s failed: %s", SCH_STORAGE_PGUSER, PQerrorMessage(conn));
+        PQfinish(conn);
+        return -1;
+    }
+
+    char select_exist_db[100];
+    sprintf(select_exist_db, "SELECT datname FROM pg_database "
+                             "WHERE datname = '%s';", fs_db_name);
+
+    LOGD(tag, "SQL command: %s", select_exist_db);
+    PGresult *res = PQexec(conn, select_exist_db);
+
+    if (PQresultStatus(res) != PGRES_TUPLES_OK) {
+        LOGE(tag, "command failed: %s", PQerrorMessage(conn));
+        PQclear(res);
+        PQfinish(conn);
+        return -1;
+    }
+
+    char* value_str;
+    if ((value_str = PQgetvalue(res, 0, 0)) == NULL)
+    {
+        //Create database
+        char create_db[100];
+        sprintf(create_db, "CREATE DATABASE %s;", fs_db_name);
+        PQclear(res);
+        LOGD(tag, "SQL command: %s", create_db);
+        res = PQexec(conn, create_db);
+        if (PQresultStatus(res) != PGRES_COMMAND_OK) {
+            LOGE(tag, "command failed: %s", PQerrorMessage(conn));
+            PQclear(res);
+            PQfinish(conn);
+            return -1;
+        }
+    }
+    else
+    {
+        LOGD(tag, "Database %s already created", fs_db_name);
+    }
+
+    PQclear(res);
+    PQfinish(conn);
+
+    sprintf(postgres_conf_s, "user=%s dbname=%s", SCH_STORAGE_PGUSER, fs_db_name);
     conn = PQconnectdb(postgres_conf_s);
 
     if (PQstatus(conn) == CONNECTION_BAD) {
@@ -44,8 +94,8 @@ int storage_init(const char *file)
     }
 
     int ver = PQserverVersion(conn);
+    LOGI(tag, "Server version: %d", ver);
 
-    printf("Server version: %d\n", ver);
 #endif
     return 0;
 }
@@ -99,8 +149,6 @@ int storage_table_repo_init(char* table, int drop)
         LOGD(tag, "Table %s created successfully", table);
         sqlite3_free(sql);
     }
-
-    storage_table_payload_init(0);
     return 0;
 
 #elif SCH_STORAGE_MODE == 2
@@ -130,8 +178,6 @@ int storage_table_repo_init(char* table, int drop)
         PQclear(res);
     }
     PQclear(res);
-    storage_table_payload_init(0);
-
     return 0;
 #endif
 }
@@ -254,7 +300,7 @@ int storage_table_payload_init(int drop)
     for(i=0; i< last_sensor; ++i)
     {
         char create_table[300];
-        sprintf(create_table, "CREATE TABLE IF NOT EXISTS %s(tstz TIMESTAMPTZ,", data_map[i].table);
+        sprintf(create_table, "CREATE TABLE IF NOT EXISTS %s(id INTEGER, tstz TIMESTAMPTZ,", data_map[i].table);
         char* tok_sym[30];
         char* tok_var[30];
         char order[50];
@@ -612,9 +658,14 @@ void get_value_string(char* ret_string, char* c_type, char* buff)
     }
 }
 
-
-int storage_add_payload_data(void* data, int payload)
+int storage_set_payload_data(int index, void* data, int payload)
 {
+    if(payload >= last_sensor)
+    {
+        LOGE(tag, "Payload id: %d greater than maximum id: %d", payload, last_sensor);
+        return -1;
+    }
+
 #if SCH_STORAGE_MODE > 0
     char* tok_sym[30];
     char* tok_var[30];
@@ -626,8 +677,8 @@ int storage_add_payload_data(void* data, int payload)
 
     char values[500];
     char names[500];
-    strcpy(names, "(tstz,");
-    strcpy(values, "(current_timestamp,");
+    strcpy(names, "(id, tstz,");
+    sprintf(values, "(%d, current_timestamp,", index);
 
     int j;
     for(j=0; j < nparams; ++j) {
@@ -719,10 +770,8 @@ void get_psql_value(char* c_type, void* buff, PGresult *res, int j)
     }
 }
 
-
-int storage_get_recent_payload_data(void * data, int payload, int delay)
+int storage_get_payload_data(int index, void* data, int payload)
 {
-
 #if SCH_STORAGE_MODE > 0
     char* tok_sym[30];
     char* tok_var[30];
@@ -749,8 +798,8 @@ int storage_get_recent_payload_data(void * data, int payload, int delay)
     }
 
     char get_value[200];
-    sprintf(get_value,"SELECT %s FROM %s ORDER BY tstz DESC LIMIT 1"
-            ,names, data_map[payload].table);
+    sprintf(get_value,"SELECT %s FROM %s WHERE id=%d LIMIT 1"
+            ,names, data_map[payload].table, index);
     LOGD(tag, "%s",  get_value);
 
 #if SCH_STORAGE_MODE == 1
@@ -804,7 +853,6 @@ int storage_get_recent_payload_data(void * data, int payload, int delay)
 #endif
     return 0;
 }
-
 
 int storage_close(void)
 {

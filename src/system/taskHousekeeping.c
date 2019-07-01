@@ -113,9 +113,14 @@ void taskHousekeeping(void *param)
             cmd_send(cmd_run_sstv);
         }
 
-        if ((elapsed_sec % _01min_check) == 0) {
+        if ((elapsed_sec % _10min_check) == 0) {
             cmd_t *cmd_send_xbee_data = cmd_get_str("send_xbee_data");
             cmd_send(cmd_send_xbee_data);
+        }
+
+        if ((elapsed_sec % _10sec_check) == 0) {
+            cmd_t *cmd_send_sun_data = cmd_get_str("send_sun_data");
+            cmd_send(cmd_send_sun_data);
         }
 
 
@@ -266,7 +271,7 @@ void taskHousekeeping(void *param)
         if((elapsed_sec % _01min_check) == 0)
         {
             LOGD(tag, "1 hour check");
-            cmd_t *cmd_1h = cmd_get_str("update_hours_alive");
+            cmd_t *cmd_1h = cmd_get_str("drp_add_hrs_alive");
             cmd_add_params_var(cmd_1h, 1); // Add 1 min
             cmd_send(cmd_1h);
             LOGI(tag, "Phase: %d", phase);

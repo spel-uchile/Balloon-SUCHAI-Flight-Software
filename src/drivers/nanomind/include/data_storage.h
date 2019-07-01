@@ -172,7 +172,6 @@ int storage_flight_plan_reset(void);
  */
 int storage_show_table(void);
 
-// TODO: Check why this function isn't in Linux/include/data_storage.h
 /**
  * Set or update a value in index address for specific payload
  * in NOR FLASH
@@ -186,16 +185,6 @@ int storage_show_table(void);
  */
 int storage_set_payload_data(int index, void * data, int payload);
 
-/**
- * Add data struct to payload table
- *
- * @param data Pointer to struct
- * @param payload Int, payload to store
- * @return 0 OK, -1 Error
- */
-//int storage_add_payload_data(void * data, int payload, int lastindex);
-
-// TODO: Check why this function isn't in Linux/include/data_storage.h
 /**
  * Get a value from index address for specific payload
  * in NOR FLASH

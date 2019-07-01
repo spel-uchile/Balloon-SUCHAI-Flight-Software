@@ -166,25 +166,30 @@ int storage_flight_plan_reset(void);
 int storage_show_table(void);
 
 /**
- * Add data struct to payload table
- *
- * @param data Pointer to struct
- * @param payload Int, payload to store
- * @return 0 OK, -1 Error
- */
-int storage_add_payload_data(void * data, int payload);
-
-/**
- * Get recent values from for specific payload
+ * Set a value for specific payload with index value
+ * in database
  *
  * @note: non-reentrant function, use mutex to sync access
  *
+ * @param index Int. index address
+ * @param data Pointer to struct
+ * @param payload Int. payload to store
+ * @return 0 OK, -1 Error
+ */
+int storage_set_payload_data(int index, void * data, int payload);
+
+/**
+ * Get a value for specific payload with index value
+ * in database
+ *
+ * @note: non-reentrant function, use mutex to sync access
+ *
+ * @param index Int. index address
  * @param data Pointer to struct
  * @param payload Int. payload to get value
- * @param delay Int, delay from recent value
- * @return OK 0, Error -1
+ * @return 0 OK, -1 Error
  */
-int storage_get_recent_payload_data(void* data, int payload, int delay);
+int storage_get_payload_data(int index, void* data, int payload);
 
 /**
  * Close the opened database
@@ -194,82 +199,5 @@ int storage_get_recent_payload_data(void* data, int payload, int delay);
  * @return 0 OK, -1 Error
  */
 int storage_close(void);
-
-/* Second Mission specific data functions */
-
-/**
- * Set a gps data frame
- *
- * @note: non-reentrant function, use mutex to sync access
- *
- * @param table Str. table name
- * @param data Struct. struct containing gps data
- *
- * @return 0 OK, -1 Error
- */
-int storage_table_gps_set(const char* table, void* data);
-
-/**
- * Get n gps data frames
- *
- * @note: non-reentrant function, use mutex to sync access
- *
- * @param table Str. table name
- * @param data Struct array. array with gps data
- * @param n Int. number of frames obtained
- *
- * @return 0 OK, -1 Error
- */
-int storage_table_gps_get(const char* table, void* data, int n);
-
-/**
- * Set a pressure data frame
- *
- * @note: non-reentrant function, use mutex to sync access
- *
- * @param table Str. table name
- * @param data Struct. struct containing prs data
- *
- * @return 0 OK, -1 Error
- */
-int storage_table_prs_set(const char* table, void* data);
-
-/**
- * Get n prs data frames
- *
- * @note: non-reentrant function, use mutex to sync access
- *
- * @param table Str. table name
- * @param data Struct array. array with prs data
- * @param n Int. number of frames obtained
- *
- * @return 0 OK, -1 Error
- */
-int storage_table_prs_get(const char* table, void* data, int n);
-
-/**
- * Set a deploy data frame
- *
- * @note: non-reentrant function, use mutex to sync access
- *
- * @param table Str. table name
- * @param data Struct. struct containing dpl data
- *
- * @return 0 OK, -1 Error
- */
-int storage_table_dpl_set(const char* table, void* data);
-
-/**
- * Get n dpl data frames
- *
- * @note: non-reentrant function, use mutex to sync access
- *
- * @param table Str. table name
- * @param data Struct array. array with dpl data
- * @param n Int. number of frames obtained
- *
- * @return 0 OK, -1 Error
- */
-int storage_table_dpl_get(const char* table, void *data, int n);
 
 #endif //SCH_PERSISTENT_H

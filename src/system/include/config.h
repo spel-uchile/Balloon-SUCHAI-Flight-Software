@@ -60,7 +60,7 @@
 #define SCH_KISS_DEVICE         "/dev/ttyUSB0"     ///< Kiss device path
 
 /* Communications system settings */
-#define SCH_COMM_ADDRESS        1                  ///< Node address
+#define SCH_COMM_ADDRESS        10                  ///< Node address
 #define SCH_TNC_ADDRESS         9                  ///< TNC node address
 #define SCH_TRX_ADDRESS         5                  ///< TRX node address
 #define SCH_EPS_ADDRESS         2                  ///< EPS node address
@@ -77,9 +77,9 @@
 #define SCH_TX_BAUD             4800               /// Default TRX baudrate [4800|9600|19200
 
 /* Data repository settings */
-#define SCH_STORAGE_MODE        2    ///< Status repository location. (0) RAM, (1) Single external.
+#define SCH_STORAGE_MODE        2    ///< Status repository location. (0) RAM, (1) Single external sqlite (2) postgres.
 #define SCH_STORAGE_TRIPLE_WR   0   ///< Tripled writing enabled (0 | 1)
-#define SCH_STORAGE_FILE        "suchai.db"   ///< File to store the database, only if @SCH_STORAGE_MODE is 1
+#define SCH_STORAGE_FILE        "/tmp/suchai.db"   ///< File to store the database, only if @SCH_STORAGE_MODE is 1
 #define SCH_STORAGE_PGUSER      "pi"
 
 #define SCH_SECTIONS_PER_PAYLOAD 2 /// TODO: Make configurable per payload
