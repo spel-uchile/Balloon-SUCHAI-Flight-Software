@@ -45,3 +45,6 @@ playground
 
 # Libcsp
 src/drivers/Linux/libcsp/libcsp
+
+#drivers
+src/drivers/Linux/bcm2835-1.60/
