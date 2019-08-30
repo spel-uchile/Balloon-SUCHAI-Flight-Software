@@ -20,6 +20,7 @@
 
 
 #define MAX_LEN 32
+#define READ_LEN 3
 #define OBC_ADDR 0x10
 #define BIuC_ADDR 0x11
 #define SAMPLE_SPEED_CODE 21
@@ -69,5 +70,7 @@ int rw_sample_current(char *fmt, char *params, int nparams);
 int rw_get_speed(char *fmt, char *params, int nparams);
 int rw_get_current(char *fmt, char *params, int nparams);
 int rw_set_speed(char *fmt, char *params, int nparams);
+int i2c_write(uint8_t addr, uint8_t data1, uint8_t data2, uint8_t data3);
+int i2c_read(char* buf);
 
 #endif /* CMD_RW_H */

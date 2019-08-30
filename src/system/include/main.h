@@ -99,6 +99,9 @@
 #if SCH_FP_ENABLED
     #include "taskFlightPlan.h"
 #endif
+#if SCH_RWTEST_ENABLED
+#include "taskRWTest.h"
+#endif
 
 #ifdef ESP32
     void app_main();

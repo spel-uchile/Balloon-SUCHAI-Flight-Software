@@ -42,80 +42,49 @@ void cmd_rw_init(void)
 int rw_sample_speed(char *fmt, char *params, int nparams)
 {
     LOGI(tag, "Sampling speed");
-    uint8_t init_ok = i2c_init();
-    printf("init_ok = %d\n", init_ok);
-    if (init_ok)
-    {
-        bcm2835_i2c_setSlaveAddress(BIuC_ADDR);
-        char wbuf[3];
-        wbuf[0] = SAMPLE_SPEED_CODE;
-        wbuf[1] = 0;
-        wbuf[2] = 0;
-
-        uint8_t data = bcm2835_i2c_write(wbuf, 3);
-        printf("Write Result = %d\n", data);
-        bcm2835_i2c_end();
-        bcm2835_close();
-        return 1;
-    }
-    return 0;
+    int res = i2c_write(BIuC_ADDR, SAMPLE_SPEED_CODE, 0, 0);
+    return res;
 }
 
 int rw_sample_current(char *fmt, char *params, int nparams)
 {
     LOGI(tag, "Sampling current");
-    uint8_t init_ok = i2c_init();
-    printf("init_ok = %d\n", init_ok);
-    if (init_ok)
-    {
-        bcm2835_i2c_setSlaveAddress(BIuC_ADDR);
-        char wbuf[3];
-        wbuf[0] = SAMPLE_CURRENT_CODE;
-        wbuf[1] = 0;
-        wbuf[2] = 0;
-
-        uint8_t data = bcm2835_i2c_write(wbuf, 3);
-        printf("Write Result = %d\n", data);
-        bcm2835_i2c_end();
-        bcm2835_close();
-        return 1;
-    }
-    return 0;
+    int res = i2c_write(BIuC_ADDR, SAMPLE_CURRENT_CODE, 0, 0);
+    return res;
 }
 int rw_get_speed(char *fmt, char *params, int nparams)
 {
-    
+    LOGI(tag, "Getting speed");
+    char buf[READ_LEN];
+    int res_w = i2c_write(BIuC_ADDR, SAMPLE_SPEED_CODE, 0, 0);
+    delay(20);
+    int res_r = i2c_read(buf);
+    uint16_t speed = (buf[0]<<8) | buf[1];
+    LOGI(tag, "Sampled speed: %d", speed);
+    return res_w && res_r;
 }
 int rw_get_current(char *fmt, char *params, int nparams)
 {
-    
+    LOGI(tag, "Sampling speed");
+    char buf[READ_LEN];
+    int res_w = i2c_write(BIuC_ADDR, SAMPLE_CURRENT_CODE, 0, 0);
+    delay(20);
+    int res_r = i2c_read(buf);
+    uint16_t current_aux = ((buf[0]&0x07)<<8) | buf[1];
+    LOGI(tag, "current aux: %d", current_aux);
+    float current = 3000*(current_aux-1023)/2048.0; //[mA]
+    LOGI(tag, "Sampled current: %f", current);
+    return res_w && res_r;
 }
 int rw_set_speed(char *fmt, char *params, int nparams)
 {
     LOGI(tag, "Speed command");
-    uint8_t init_ok = i2c_init();
-    printf("init_ok = %d\n", init_ok);
     uint16_t speed;
-
-    if (init_ok)
+    if(sscanf(params, fmt, &speed) == nparams)
     {
-        if(sscanf(params, fmt, &speed) == nparams)
-        {
-            //printf("speed = %d\n", speed);
-            LOGI(tag, "Setting speed: %d", speed);
-            bcm2835_i2c_setSlaveAddress(BIuC_ADDR);
-            char wbuf[3];
-            wbuf[0] = SET_SPEED_CODE;
-            wbuf[1] = speed&0xff;
-            wbuf[2] = speed>>8;
-
-            uint8_t data = bcm2835_i2c_write(wbuf, 3);
-            printf("Write Result = %d\n", data);
-            bcm2835_i2c_end();
-            bcm2835_close();
-            return 1;
-        }
-        return 0;
+        LOGI(tag, "Setting speed: %d", speed);
+        int res_w = i2c_write(BIuC_ADDR, SET_SPEED_CODE, speed&0xff, speed>>8);
+        return res_w;
     }
     return 0;
 }
@@ -136,4 +105,46 @@ uint8_t i2c_init(void)
     }
     bcm2835_i2c_setClockDivider(clk_div);
     return 1;
+}
+
+int i2c_write(uint8_t addr, uint8_t data1, uint8_t data2, uint8_t data3)
+{
+    uint8_t init_ok = i2c_init();
+    printf("init_ok = %d\n", init_ok);
+    if (init_ok)
+    {
+        bcm2835_i2c_setSlaveAddress(addr);
+        char wbuf[3];
+        wbuf[0] = data1;
+        wbuf[1] = data2;
+        wbuf[2] = data3;
+
+        uint8_t data = bcm2835_i2c_write(wbuf, 3);
+        printf("I2C Write Result = %d\n", data);
+        bcm2835_i2c_end();
+        bcm2835_close();
+        return 1;
+    }
+    return 0;
+}
+
+int i2c_read(char buf[])
+{
+    uint8_t init_ok = i2c_init();
+    printf("init_ok = %d\n", init_ok);
+    if (init_ok)
+    {
+        for (uint8_t i = 0; i < READ_LEN; i++) buf[i] = 'n';
+        uint8_t data = bcm2835_i2c_read(buf, 2);
+        printf("I2C Read Result = %d\n", data);
+        for (uint8_t i = 0; i < READ_LEN; i++) {
+            if (buf[i] != 'n') printf("Read Buf[%d] = %x\n", i, buf[i]);
+        }
+
+        // This I2C end is done after a transfer if specified
+        bcm2835_i2c_end();
+        bcm2835_close();
+        return 1;
+    }
+    return 0;
 }

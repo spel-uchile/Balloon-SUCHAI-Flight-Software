@@ -107,6 +107,10 @@ void taskInit(void *param)
     t_ok = osCreateTask(taskFlightPlan,"flightplan", SCH_TASK_FPL_STACK, NULL, 2, &(thread_id[3]));
     if(t_ok != 0) LOGE(tag, "Task flightplan not created!");
 #endif
+#if SCH_RWTEST_ENABLED
+    t_ok = osCreateTask(taskRWTest, "reactionwheel", SCH_TASK_RWT_STACK, NULL, 2, &(thread_id[4]));
+    if(t_ok != 0) LOGE(tag, "Task reactionwheel not created!");
+#endif
 
     osTaskDelete(NULL);
 }

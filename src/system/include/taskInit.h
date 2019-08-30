@@ -38,6 +38,9 @@
 #if SCH_FP_ENABLED
 #include "taskFlightPlan.h"
 #endif
+#if SCH_RWTEST_ENABLED
+#include "taskRWTest.h"
+#endif
 
 void taskInit(void *param);
 void init_communications(void);

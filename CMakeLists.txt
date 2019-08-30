@@ -31,6 +31,7 @@ set(SOURCE_FILES
         src/system/taskCommunications.c
         src/system/taskConsole.c
         src/system/taskFlightPlan.c
+        src/system/taskRWTest.c
         src/system/cmdFP.c
         src/system/taskInit.c
         src/system/taskWatchdog.c
