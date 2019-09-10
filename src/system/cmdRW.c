@@ -22,7 +22,7 @@
 #include "cmdRW.h"
 
 static const char* tag = "cmdRW";
-uint16_t clk_div = BCM2835_I2C_CLOCK_DIVIDER_148;
+char *deviceName = (char*)"/dev/i2c-1";
 
 void cmd_rw_init(void)
 {
@@ -57,7 +57,7 @@ int rw_get_speed(char *fmt, char *params, int nparams)
     LOGI(tag, "Getting speed");
     char buf[READ_LEN];
     int res_w = i2c_write(BIuC_ADDR, SAMPLE_SPEED_CODE, 0, 0);
-    delay(20);
+    osDelay(100);
     int res_r = i2c_read(buf);
     uint16_t speed = (buf[0]<<8) | buf[1];
     LOGI(tag, "Sampled speed: %d", speed);
@@ -68,7 +68,7 @@ int rw_get_current(char *fmt, char *params, int nparams)
     LOGI(tag, "Sampling speed");
     char buf[READ_LEN];
     int res_w = i2c_write(BIuC_ADDR, SAMPLE_CURRENT_CODE, 0, 0);
-    delay(20);
+    osDelay(100);
     int res_r = i2c_read(buf);
     uint16_t current_aux = ((buf[0]&0x07)<<8) | buf[1];
     LOGI(tag, "current aux: %d", current_aux);
@@ -84,67 +84,67 @@ int rw_set_speed(char *fmt, char *params, int nparams)
     {
         LOGI(tag, "Setting speed: %d", speed);
         int res_w = i2c_write(BIuC_ADDR, SET_SPEED_CODE, speed&0xff, speed>>8);
+        //printf("write_result: %d", res_w);
         return res_w;
     }
     return 0;
 }
 
-uint8_t i2c_init(void)
-{
-    if (!bcm2835_init())
-    {
-        printf("bcm2835_init failed. Are you running as root??\n");
-        return 0;
-    }
-
-    // I2C begin
-    if (!bcm2835_i2c_begin())
-    {
-        printf("bcm2835_i2c_begin failed. Are you running as root??\n");
-        return 0;
-    }
-    bcm2835_i2c_setClockDivider(clk_div);
-    return 1;
-}
-
 int i2c_write(uint8_t addr, uint8_t data1, uint8_t data2, uint8_t data3)
 {
-    uint8_t init_ok = i2c_init();
-    printf("init_ok = %d\n", init_ok);
-    if (init_ok)
+    int i2cHandle;
+    if ((i2cHandle = open(deviceName, O_RDWR)) < 0)
     {
-        bcm2835_i2c_setSlaveAddress(addr);
-        char wbuf[3];
-        wbuf[0] = data1;
-        wbuf[1] = data2;
-        wbuf[2] = data3;
-
-        uint8_t data = bcm2835_i2c_write(wbuf, 3);
-        printf("I2C Write Result = %d\n", data);
-        bcm2835_i2c_end();
-        bcm2835_close();
+        printf("error opening I2C\n");
+        return 0;
+    }
+    else
+    {
+        if (ioctl(i2cHandle, I2C_SLAVE, addr) < 0) {
+            printf("Error at ioctl\n");
+            return 0;
+        } else {
+            char wbuf[3];
+            wbuf[0] = data1;
+            wbuf[1] = data2;
+            wbuf[2] = data3;
+            int res_tmp = write(i2cHandle, wbuf, sizeof(wbuf));
+            //printf("write_fd_res: %d", res_tmp);
+        }
+        // Close the i2c device bus
+        close(*deviceName);
         return 1;
     }
-    return 0;
 }
 
 int i2c_read(char buf[])
 {
-    uint8_t init_ok = i2c_init();
-    printf("init_ok = %d\n", init_ok);
-    if (init_ok)
+    int i2cHandle;
+    if ((i2cHandle = open(deviceName, O_RDWR)) < 0)
     {
-        for (uint8_t i = 0; i < READ_LEN; i++) buf[i] = 'n';
-        uint8_t data = bcm2835_i2c_read(buf, 2);
-        printf("I2C Read Result = %d\n", data);
-        for (uint8_t i = 0; i < READ_LEN; i++) {
-            if (buf[i] != 'n') printf("Read Buf[%d] = %x\n", i, buf[i]);
+        printf("error opening I2C\n");
+        return 0;
+    }
+    else
+    {
+        if (ioctl(i2cHandle, I2C_SLAVE, BIuC_ADDR) < 0) {
+            printf("Error at ioctl\n");
+            return 0;
+        } else {
+            uint8_t buf_len = sizeof(buf);
+            memset(buf, 0, buf_len);
+            uint8_t bytes_r = read(i2cHandle, buf, buf_len);
+            if (bytes_r != buf_len)
+            {
+                perror("Failed to read from the i2c bus");
+                return 0;
+            }
+            /*printf("buf[0] = %d\n", buf[0]);
+            printf("buf[1] = %d\n", buf[1]);
+            printf("buf[2] = %d\n", buf[2]);*/
         }
-
-        // This I2C end is done after a transfer if specified
-        bcm2835_i2c_end();
-        bcm2835_close();
+        // Close the i2c device bus
+        close(*deviceName);
         return 1;
     }
-    return 0;
 }

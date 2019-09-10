@@ -33,6 +33,14 @@ enum phase_n{
     phase_c1, // 7: (C1) speed 7        [3h17, inf]  min  -->
 };
 
+/*test phases*/
+/*const int  RW_MIN_PHASE_A  =  1;
+const int  RW_MIN_PHASE_A1 =  3;
+const int  RW_MIN_PHASE_B  = 6;
+const int  RW_MIN_PHASE_B1 = 9;
+const int  RW_MIN_PHASE_B2 = 12;
+const int  RW_MIN_PHASE_C  = 15;
+const int  RW_MIN_PHASE_C1 = 18;*/
 
 const int  RW_MIN_PHASE_A  =  10;
 const int  RW_MIN_PHASE_A1 =  41;
@@ -172,15 +180,15 @@ void taskRWTest(void *param)
          * -get_speed
          * -get_current
         */
-        if ((elapsed_sec % _10sec_check) == 0) {
+        /*if ((elapsed_sec % 5) == 2) {
             cmd_t *cmd_get_speed = cmd_get_str("rw_get_speed");
             cmd_send(cmd_get_speed);
         }
 
-        if ((elapsed_sec % _10sec_check) == 1) {
+        if ((elapsed_sec % 5) == 3) {
             cmd_t *cmd_get_current = cmd_get_str("rw_get_current");
             cmd_send(cmd_get_current);
-        }
+        }*/
 
         /* 1 min actions, update minutes alive counter*/
         if((elapsed_sec % _01min_check) == 0)

@@ -14,13 +14,18 @@
 #include "config.h"
 
 #ifdef LINUX
-    #include <bcm2835.h>
+    //#include <bcm2835.h>
     #include <stdint.h>
+    #include <fcntl.h>
+    #include <sys/ioctl.h>
+    #include <linux/i2c-dev.h>
+    #include <errno.h>
+    #include <unistd.h>
 #endif
 
 
 #define MAX_LEN 32
-#define READ_LEN 3
+#define READ_LEN 2
 #define OBC_ADDR 0x10
 #define BIuC_ADDR 0x11
 #define SAMPLE_SPEED_CODE 21
