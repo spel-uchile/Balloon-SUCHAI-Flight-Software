@@ -18,6 +18,7 @@ cd SUCHAI-Flight-Software
 cd src/drivers/Linux/libcsp
 sh install_csp.sh
 cd /home/pi/Spel
+mkdir mission-history
 #balloon deps
 sudo apt-get install gpsd gpsd-clients python-gps python3-gps
 sudo apt-get install python-smbus python3-smbus
@@ -25,7 +26,7 @@ sudo apt-get install python-serial python3-serial
 
 #balloon repo
 git clone https://github.com/spel-uchile/balloon_experiment.git
-ln -s balloon_experiment/ submodules/
+ln -s balloon_experiment/sw/raspberry/ submodules/
 
 #bmp deps
 cd ~
