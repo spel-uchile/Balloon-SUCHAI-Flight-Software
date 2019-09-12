@@ -7,6 +7,7 @@ sudo apt-get install libsqlite3-dev
 sudo apt-get install libzmq3-dev|
 sudo apt-get install cmake
 sudo pip install pyzmq-static
+sudo pip install smbus2
 sudo apt install python3-gpiozero python-gpiozero
 #sudo pip3 install pyzmq-static
 sudo apt-get install python3-zmq
