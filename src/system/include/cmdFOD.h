@@ -63,7 +63,7 @@ uint8_t i2c_init(void);
  * Init i2c library for raspberry
  */
 
-int i2c_write(char data[]);
+int i2c_write(char cmd[], char params[]);
 int i2c_read(char* buf)
 
 #endif /* CMD_FOD_H */
