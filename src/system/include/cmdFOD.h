@@ -35,7 +35,7 @@
  * Register femto-satellite orbital deployer commands.
  */
 void cmd_fod_init(void);
-int help(char *fmt, char *params, int nparams);
+int fod_help(char *fmt, char *params, int nparams);
 int deploy_femtosats(char *fmt, char *params, int nparams);
 int get_status(char *fmt, char *params, int nparams);
 int get_femtosat_data(char *fmt, char *params, int nparams); 
@@ -63,7 +63,7 @@ uint8_t fod_i2c_init(void);
  * Init i2c library for raspberry
  */
 
-int fod_i2c_write(char cmd[], char params[]);
+int fod_i2c_write(int cmd, char *fmt, char params[]);
 int fod_i2c_read(char* buf);
 
 #endif /* CMD_FOD_H */
