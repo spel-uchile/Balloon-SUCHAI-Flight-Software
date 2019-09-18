@@ -370,6 +370,7 @@ int cmd_repo_init(void)
     cmd_tm_init();
     cmd_subsys_init();
     cmd_rw_init();
+    cmd_fod_init();
 #endif
     cmd_console_init();
 #if SCH_FP_ENABLED

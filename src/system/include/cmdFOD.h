@@ -36,18 +36,18 @@
  */
 void cmd_fod_init(void);
 int help(char *fmt, char *params, int nparams);
-int deploy_femtosats(char *fmt, char *params, char nparams);
-int get_status(char *fmt, char *params, char nparams);
-int get_femtosat_data(char *fmt, char *params, char nparams); 
-int set_on_time(char *fmt, char *params, char nparams);
-int send_beacon(char *fmt, char *params, char nparams);
-int update_data(char *fmt, char *params, char nparams);
-int enable_low_power_mode(char *fmt, char *params, char nparams);
-int disable_low_power_mode(char *fmt, char *params, char nparams);
-int get_version(char *fmt, char *params, char nparams);
+int deploy_femtosats(char *fmt, char *params, int nparams);
+int get_status(char *fmt, char *params, int nparams);
+int get_femtosat_data(char *fmt, char *params, int nparams); 
+int set_on_time(char *fmt, char *params, int nparams);
+int send_beacon(char *fmt, char *params, int nparams);
+int update_data(char *fmt, char *params, int nparams);
+int enable_low_power_mode(char *fmt, char *params, int nparams);
+int disable_low_power_mode(char *fmt, char *params, int nparams);
+int get_version(char *fmt, char *params, int nparams);
 
 
-int rw_sample_speed(char *fmt, char *params, int nparams);
+//int rw_sample_speed(char *fmt, char *params, int nparams);
 
 /**
  * Request speed to the driver and store in their internal registers
@@ -57,13 +57,13 @@ int rw_sample_speed(char *fmt, char *params, int nparams);
  * @param nparams Int. Number of parameters 0
  * @return  CMD_OK if executed correctly or CMD_FAIL in case of errors
  */
-uint8_t i2c_init(void);
+uint8_t fod_i2c_init(void);
 
 /**
  * Init i2c library for raspberry
  */
 
-int i2c_write(char cmd[], char params[]);
-int i2c_read(char* buf)
+int fod_i2c_write(char cmd[], char params[]);
+int fod_i2c_read(char* buf);
 
 #endif /* CMD_FOD_H */

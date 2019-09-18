@@ -30,6 +30,7 @@
     #include "cmdTM.h"
     #include "cmdSubSys.h"
     #include "cmdRW.h"
+    #include "cmdFOD.h"
 #endif
 #if SCH_TEST_ENABLED
     #include "cmdTestCommand.h"
