@@ -22,6 +22,8 @@
 #include "cmdFOD.h"
 
 static const char* tag = "cmdFOD";
+char *dev_i2c_1 = (char*)"/dev/i2c-1";
+int addr = 0x07;
 
 void cmd_fod_init(void) {
     #ifdef LINUX
@@ -79,7 +81,7 @@ int fod_get_status(char *fmt, char *params, int nparams) {
     if (fod_i2c_write(FOD_GET_STATUS, fmt, NULL)) {
 	char status[2];
 	int released;
-	delay(20);
+	//delay(20);
 	fod_i2c_read(status, 2);
 	sscanf(status, "%d", &released);
 	LOGI(tag, "Released: %d", released);
@@ -121,7 +123,7 @@ int fod_get_config(char *fmt, char *params, int nparams) {
     int released;
     int on_time;
     int attempts;
-    delay(30);
+    //delay(30);
     fod_i2c_read(buf, 14);
     sscanf(buf, "%f %d %d %d", &ver, &released, &on_time, &attempts);
     LOGI(tag,
@@ -134,7 +136,7 @@ int fod_get_version(char *fmt, char *params, int nparams) {
     if (fod_i2c_write(GET_VERSION, fmt, NULL)) {
 	char buf[5];
 	float ver;
-	delay(20);
+	//delay(20);
 	fod_i2c_read(buf, 5);
 	sscanf(buf, "%f", &ver);
 	LOGI(tag, "FOD's version: %f", ver);
@@ -162,55 +164,56 @@ int fod_help(char *fmt, char *params, int nparams) {
     return CMD_OK;
 }
 
-uint8_t fod_i2c_init(void) {
-    if (!bcm2835_init()) {
-        printf("bcm2835_init failed. Are you running as root??\n");
-        return CMD_FAIL;
+int fod_i2c_read(char* buf, uint32_t len) {
+    int i2cHandle;
+    if ((i2cHandle = open(dev_i2c_1, O_RDWR)) < 0) {
+    	printf("Error opening I2C\n");
+	return CMD_ERROR;
     }
-
-    // I2C begin
-    if (!bcm2835_i2c_begin()) {
-        printf("bcm2835_i2c_begin failed. Are you running as root??\n");
-        return CMD_FAIL;
+    else {
+    	if (ioctl(i2cHandle, I2C_SLAVE, addr) < 0) {
+	    printf("Error at ioctl\n");
+	    return CMD_ERROR;
+	}
+	else {
+	    memset(buf, 0, len);
+	    uint8_t bytes_read = read(i2cHandle, buf, len);
+	    if (bytes_read != len) {
+	    	perror("Failed to read from I2C bus");
+		return CMD_FAIL;
+	    }
+	}
+	close(*dev_i2c_1);
+	return CMD_OK;
     }
-    bcm2835_i2c_setClockDivider(BCM2835_I2C_CLOCK_DIVIDER_148);
-    return CMD_OK;
 }
 
 int fod_i2c_write(int cmd, char *fmt, char params[]) {
-    uint8_t init_ok = fod_i2c_init();
-    if (init_ok) {
-        bcm2835_i2c_setSlaveAddress(0x07);
-	if (params == NULL) {
-	    char data[2];
-	    sprintf(data, "%d", cmd);
-	    uint8_t result = bcm2835_i2c_write(data, sizeof(data));
-	    printf("I2C Write Result = %d\n", result);
+    int i2cHandle;
+    if ((i2cHandle = open(dev_i2c_1, O_RDWR)) < 0) {
+    	printf("Error opening I2C\n");
+	return CMD_ERROR;
+    }
+    else {
+    	if (ioctl(i2cHandle, I2C_SLAVE, addr) < 0) {
+	    printf("Error at ioctl\n");
+	    return CMD_ERROR;
 	}
 	else {
-	    char new_fmt[2 + sizeof(fmt)];
-	    sprintf(new_fmt, "%s %s", "%d", fmt);
-	    char data[sizeof(cmd) + 1 + strlen(params)];
-	    sprintf(data, "%d %s", cmd, params);
-	    uint8_t result = bcm2835_i2c_write(data,  strlen(data));
-	    printf("I2C Write Result = %d\n", result);
+	    if (params == NULL) {
+ 	        char data[2];
+	    	sprintf(data, "%d", cmd);
+	    	int result = write(i2cHandle, data, sizeof(data));
+	    }
+	    else {
+	    	char new_fmt[2 + sizeof(fmt)];
+	    	sprintf(new_fmt, "%s %s", "%d", fmt);
+	    	char data[sizeof(cmd) + 1 + strlen(params)];
+	    	sprintf(data, "%d %s", cmd, params);
+	    	int result = write(i2cHandle, data,  strlen(data));
+	    }
 	}
-        bcm2835_i2c_end();
-        bcm2835_close();
-        return CMD_OK;
+	close(*dev_i2c_1);
+	return CMD_OK;
     }
-    return CMD_FAIL;
-}
-
-int fod_i2c_read(char* buf, uint32_t len) {
-    uint8_t init_ok = i2c_init();
-    if (init_ok) {
-        uint8_t data = bcm2835_i2c_read(buf, len);
-        printf("I2C Read Result = %d\n", data);
-        // This I2C end is done after a transfer if specified
-        bcm2835_i2c_end();
-        bcm2835_close();
-        return CMD_OK;
-    }
-    return CMD_FAIL;
 }

@@ -15,6 +15,11 @@
 
 #ifdef LINUX
     #include <stdint.h>
+    #include <fcntl.h>
+    #include <sys/ioctl.h>
+    #include <linux/i2c-dev.h>
+    #include <errno.h>
+    #include <unistd.h>
 #endif
 
 #define UPDATE_DATA 0
