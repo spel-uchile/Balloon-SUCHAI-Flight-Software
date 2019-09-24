@@ -71,19 +71,7 @@ int fod_send_beacon(char *fmt, char *params, int nparams) {
 
 int deploy_femtosats(char *fmt, char *params, int nparams) {
     LOGI(tag, "Deploying femto-satellites");
-    if (fod_i2c_write(DEPLOY_FEMTOSATS, fmt, NULL)) {
-        fod_i2c_write(FOD_GET_STATUS, fmt, NULL);
-        char res[1];
-	fod_i2c_read(res, 1);
-	if (res[0] == '1') {
-	    LOGI(tag, "Released");
-	}
-	else {
-	    LOGI(tag, "Not released");
-	}
-	return CMD_OK;
-    }
-    return CMD_FAIL;
+    return fod_i2c_write(DEPLOY_FEMTOSATS, fmt, NULL);
 }
 
 int fod_get_status(char *fmt, char *params, int nparams) {
@@ -217,13 +205,12 @@ int fod_i2c_write(int cmd, char *fmt, char params[]) {
 int fod_i2c_read(char* buf, uint32_t len) {
     uint8_t init_ok = i2c_init();
     if (init_ok) {
-        //for (uint8_t i = 0; i < strlen(buf); i++) buf[i] = 'n';
-        uint8_t data = bcm2835_i2c_read(buf, len);//strlen(buf));
+        uint8_t data = bcm2835_i2c_read(buf, len);
         printf("I2C Read Result = %d\n", data);
         // This I2C end is done after a transfer if specified
         bcm2835_i2c_end();
         bcm2835_close();
-        return 1;
+        return CMD_OK;
     }
-    return 0;
+    return CMD_FAIL;
 }
