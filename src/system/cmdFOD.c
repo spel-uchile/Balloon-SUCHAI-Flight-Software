@@ -23,19 +23,19 @@
 
 static const char* tag = "cmdFOD";
 
-void cmd_fod_init(void)
-{
+void cmd_fod_init(void) {
     #ifdef LINUX
-    cmd_add("fod_help", fod_help, "", 0);
+    cmd_add("fod_update_data", fod_update_data, "%d %d %d %d %f %f %f", 7);
+    cmd_add("fod_send_beacon", fod_send_beacon, "", 0);
     cmd_add("fod_deploy", deploy_femtosats, "", 0);
-    cmd_add("fod_get_status", get_status, "", 0);
+    cmd_add("fod_get_status", fod_get_status, "", 0);
     cmd_add("fod_get_femtosat_data", get_femtosat_data, "", 0);
     cmd_add("fod_set_on_time", set_on_time, "%d", 1);
-    cmd_add("fod_send_beacon", send_beacon, "", 0);
-    cmd_add("fod_update_data", update_data, "%d %d %d %d %f %f %f", 7);
+    cmd_add("fod_get_config", fod_get_config, "", 0);
+    cmd_add("fod_get_version", fod_get_version, "", 0);
     cmd_add("fod_enable_low_power", enable_low_power_mode, "", 0);
     cmd_add("fod_disable_low_power", disable_low_power_mode, "", 0);
-    cmd_add("fod_get_version", get_version, "", 0);
+    cmd_add("fod_help", fod_help, "", 0);
     #endif
 
     #ifdef NANOMIND
@@ -43,17 +43,30 @@ void cmd_fod_init(void)
     #endif
 }
 
-int fod_help(char *fmt, char *params, int nparams) {
-    fod_i2c_write(GET_VERSION, fmt, NULL);
-    char buf[4];
-    fod_i2c_read(buf);
-    float ver;
-    sscanf(buf, "%f", ver);
-    fod_i2c_write(FOD_GET_STATUS, fmt, NULL);
-    char status[1];
-    fod_i2c_read(status);
-    LOGI(tag, "Payload: FOD\nVersion: %f\nStatus: %s", &ver, &status);
-    return CMD_OK;
+int fod_update_data(char *fmt, char *params, int nparams) {
+    if (params == NULL) {
+	LOGE(tag, "NULL params!");
+	return CMD_FAIL;
+    }
+    int hour, min, sec, sats;
+    float lat, lng, alt;
+
+    if (sscanf(params, fmt, &hour, &min, &sec, &sats, &lat, &lng, &alt) == nparams) {
+	LOGI(tag, "Updating FOD's data:\nHH:MM:SS: %d:%d:%d\nSats: %d\nLocation: %f,%f\nAltitude: %f", hour, min, sec, sats, lat, lng, alt);
+	fod_i2c_write(UPDATE_DATA, fmt, params);
+	return CMD_OK;
+    }
+    else {
+	LOGE(tag, "Invalid params!");
+	return CMD_FAIL;
+    }
+}
+
+int fod_send_beacon(char *fmt, char *params, int nparams) {
+    LOGI(tag, "Sending beacon");
+    if (fod_i2c_write(SEND_BEACON, fmt, params))
+	return CMD_OK;
+    return CMD_FAIL;
 }
 
 int deploy_femtosats(char *fmt, char *params, int nparams) {
@@ -61,7 +74,7 @@ int deploy_femtosats(char *fmt, char *params, int nparams) {
     if (fod_i2c_write(DEPLOY_FEMTOSATS, fmt, NULL)) {
         fod_i2c_write(FOD_GET_STATUS, fmt, NULL);
         char res[1];
-	fod_i2c_read(res);
+	fod_i2c_read(res, 1);
 	if (res[0] == '1') {
 	    LOGI(tag, "Released");
 	}
@@ -73,13 +86,13 @@ int deploy_femtosats(char *fmt, char *params, int nparams) {
     return CMD_FAIL;
 }
 
-int get_status(char *fmt, char *params, int nparams) {
+int fod_get_status(char *fmt, char *params, int nparams) {
     LOGI(tag, "Getting FOD's status");
     if (fod_i2c_write(FOD_GET_STATUS, fmt, NULL)) {
-	char status[5];
-	delay(20);
-	fod_i2c_read(status);
+	char status[2];
 	int released;
+	delay(20);
+	fod_i2c_read(status, 2);
 	sscanf(status, "%d", &released);
 	LOGI(tag, "Released: %d", released);
 	return CMD_OK;
@@ -112,30 +125,34 @@ int set_on_time(char *fmt, char *params, int nparams) {
     }
 }
 
-int send_beacon(char *fmt, char *params, int nparams) {
-    LOGI(tag, "Sending beacon");
-    if (fod_i2c_write(SEND_BEACON, fmt, params))
-	return CMD_OK;
-    return CMD_FAIL;
+int fod_get_config(char *fmt, char *params, int nparams) {
+    LOGI(tag, "Getting FOD's configuration");
+    fod_i2c_write(GET_CONFIG, fmt, NULL);
+    char buf[14];
+    float ver;
+    int released;
+    int on_time;
+    int attempts;
+    delay(30);
+    fod_i2c_read(buf, 14);
+    sscanf(buf, "%f %d %d %d", &ver, &released, &on_time, &attempts);
+    LOGI(tag,
+         "\nPayload: FOD\nVersion: %f\nReleased: %d\nOn time: %d ms\nAttempts: %d",
+	 ver, released, on_time, attempts);
 }
 
-int update_data(char *fmt, char *params, int nparams) {
-    if (params == NULL) {
-	LOGE(tag, "NULL params!");
-	return CMD_FAIL;
-    }
-    int hour, min, sec, sats;
-    float lat, lng, alt;
-
-    if (sscanf(params, fmt, &hour, &min, &sec, &sats, &lat, &lng, &alt) == nparams) {
-	LOGI(tag, "Updating FOD's data:\nHH:MM:SS: %d:%d:%d\nSats: %d\nLocation: %f,%f\nAltitude: %f", hour, min, sec, sats, lat, lng, alt);
-	fod_i2c_write(UPDATE_DATA, fmt, params);
+int fod_get_version(char *fmt, char *params, int nparams) {
+    LOGI(tag, "Getting FOD's version");
+    if (fod_i2c_write(GET_VERSION, fmt, NULL)) {
+	char buf[5];
+	float ver;
+	delay(20);
+	fod_i2c_read(buf, 5);
+	sscanf(buf, "%f", &ver);
+	LOGI(tag, "FOD's version: %f", ver);
 	return CMD_OK;
     }
-    else {
-	LOGE(tag, "Invalid params!");
-	return CMD_FAIL;
-    }
+    return CMD_FAIL;
 }
 
 int enable_low_power_mode(char *fmt, char *params, int nparams) {
@@ -152,19 +169,9 @@ int disable_low_power_mode(char *fmt, char *params, int nparams) {
     return CMD_FAIL;
 }
 
-int get_version(char *fmt, char *params, int nparams) {
-    LOGI(tag, "Getting FOD's version");
-    if (fod_i2c_write(GET_VERSION, fmt, NULL)) {
-	char buf[5];
-	float ver;
-	delay(20);
-	fod_i2c_read(buf);
-	LOGI(tag, "Buffer: %s", buf);
-	sscanf(buf, "%f", &ver);
-	LOGI(tag, "FOD's version: %f", ver);
-	return CMD_OK;
-    }
-    return CMD_FAIL;
+int fod_help(char *fmt, char *params, int nparams) {
+    fod_i2c_write(HELP, fmt, NULL);
+    return CMD_OK;
 }
 
 uint8_t fod_i2c_init(void) {
@@ -187,7 +194,7 @@ int fod_i2c_write(int cmd, char *fmt, char params[]) {
     if (init_ok) {
         bcm2835_i2c_setSlaveAddress(0x07);
 	if (params == NULL) {
-	    char data[1];
+	    char data[2];
 	    sprintf(data, "%d", cmd);
 	    uint8_t result = bcm2835_i2c_write(data, sizeof(data));
 	    printf("I2C Write Result = %d\n", result);
@@ -195,12 +202,8 @@ int fod_i2c_write(int cmd, char *fmt, char params[]) {
 	else {
 	    char new_fmt[2 + sizeof(fmt)];
 	    sprintf(new_fmt, "%s %s", "%d", fmt);
-	    LOGI(tag, "New format: %s", new_fmt);
-	    //LOGI(tag, "Parameters: %s", params);
 	    char data[sizeof(cmd) + 1 + strlen(params)];
-	    //sprintf(data, new_fmt, &cmd, &params);
 	    sprintf(data, "%d %s", cmd, params);
-	    LOGI(tag, "Writing the following data: %s", data);
 	    uint8_t result = bcm2835_i2c_write(data,  strlen(data));
 	    printf("I2C Write Result = %d\n", result);
 	}
@@ -211,11 +214,11 @@ int fod_i2c_write(int cmd, char *fmt, char params[]) {
     return CMD_FAIL;
 }
 
-int fod_i2c_read(char buf[]) {
+int fod_i2c_read(char* buf, uint32_t len) {
     uint8_t init_ok = i2c_init();
     if (init_ok) {
         //for (uint8_t i = 0; i < strlen(buf); i++) buf[i] = 'n';
-        uint8_t data = bcm2835_i2c_read(buf, strlen(buf));
+        uint8_t data = bcm2835_i2c_read(buf, len);//strlen(buf));
         printf("I2C Read Result = %d\n", data);
         // This I2C end is done after a transfer if specified
         bcm2835_i2c_end();
