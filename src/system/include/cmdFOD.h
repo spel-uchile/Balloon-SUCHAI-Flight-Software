@@ -12,6 +12,7 @@
 #define CMD_FOD_H
 
 #include "config.h"
+#include "repoData.h"
 
 #ifdef LINUX
     #include <stdint.h>
