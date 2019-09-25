@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD 11)
 set(SOURCE_FILES
         src/drivers/Linux/data_storage.c
         src/drivers/Linux/init.c
-        src/drivers/Linux/bcm2835-1.60/src/bcm2835.c
+	src/drivers/Linux/bcm2835-1.60/src/bcm2835.c
         src/os/Linux/osDelay.c
         src/os/Linux/osQueue.c
         src/os/Linux/osScheduler.c
@@ -37,6 +37,7 @@ set(SOURCE_FILES
         src/system/taskWatchdog.c
         src/system/main.c
         src/system/cmdRW.c
+	src/system/cmdFOD.c
         )
 
 include_directories(
