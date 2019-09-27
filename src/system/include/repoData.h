@@ -158,6 +158,7 @@ typedef enum dat_system {
     dat_mem_gps,                  ///< GPS data index
     dat_mem_prs,                  ///< PRS data index
     dat_mem_dpl,                  ///< DPL data index
+    dat_mem_fod,                  ///< FOD data index
 
     /// Memory: Current send acknowledge data
     dat_mem_ack_temp,                 ///< Temperature data acknowledge
@@ -249,6 +250,7 @@ typedef struct __attribute__((packed)) dat_status_s {
     uint32_t dat_mem_gps;           ///< GPS data index
     uint32_t dat_mem_prs;           ///< PRS data index
     uint32_t dat_mem_dpl;           ///< DPL data index
+    uint32_t dat_mem_fod;           ///< FOD data index
 
     /// Memory: Current send acknowledge data
     uint32_t dat_mem_ack_temp;      ///< Temperature data acknowledge

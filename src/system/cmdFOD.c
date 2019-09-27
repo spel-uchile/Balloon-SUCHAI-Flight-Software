@@ -126,8 +126,11 @@ int fod_get_config(char *fmt, char *params, int nparams) {
     //delay(30);
     fod_i2c_read(buf, 14);
     sscanf(buf, "%f %d %d %d", &ver, &released, &on_time, &attempts);
+
+    struct fod_data data_fod = {ver, released, on_time, attempts};
+    dat_add_payload_sample(&data_fod, fod_sensors);
     LOGI(tag,
-         "\nPayload: FOD\nVersion: %f\nReleased: %d\nOn time: %d ms\nAttempts: %d",
+         "\nReading FOD data:\nVersion: %f\nReleased: %d\nOn time: %d ms\nAttempts: %d",
 	 ver, released, on_time, attempts);
 }
 

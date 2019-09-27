@@ -47,7 +47,7 @@ struct map data_map[last_sensor] = {
         { "gps_data",      (uint16_t) (sizeof(gps_data_t)), dat_mem_gps, dat_mem_ack_gps, "%u %f %f %f %f %f %d %d", "timestamp latitude longitude height velocity_x velocity_y satellites_number mode"},
         { "prs_data",      (uint16_t) (sizeof(prs_data_t)), dat_mem_prs, dat_mem_ack_prs, "%u %f %f %f", "timestamp pressure temperature height"},
         { "dpl_data",      (uint16_t) (sizeof(dpl_data_t)), dat_mem_dpl, dat_mem_ack_dpl, "%u %d %d", "timestamp port_status"},
-	{ "fod_data",      (uint16_t) (sizeof(fod_data_t)), dat_mem_fod, dat_mem_ack_fodm "%u %f %d %d %d", "timestamp ver released on_time attempts"}
+	{ "fod_data",      (uint16_t) (sizeof(fod_data_t)), dat_mem_fod, dat_mem_ack_fod, "%u %f %d %d %d", "timestamp ver released on_time attempts"}
 };
 
 void initialize_payload_vars(){
