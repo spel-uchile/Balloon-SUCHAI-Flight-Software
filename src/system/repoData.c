@@ -339,6 +339,12 @@ void dat_status_to_struct(dat_status_t *status)
     DAT_CPY_SYSTEM_VAR(status, dat_eps_cur_sys);       ///< Current out of battery [mA]
     DAT_CPY_SYSTEM_VAR(status, dat_eps_temp_bat0);     ///< Battery temperature sensor
 
+    DAT_CPY_SYSTEM_VAR(status, dat_fod_ver);           ///< Software's version
+    DAT_CPY_SYSTEM_VAR(status, dat_fod_released);      ///< Release status (1=released, 0=not released)
+    DAT_CPY_SYSTEM_VAR(status, dat_fod_on_time);       ///< Maximum time for a deployment attempt in ms
+    DAT_CPY_SYSTEM_VAR(status, dat_fod_attempts);      ///< Current number of attempts
+
+
     DAT_CPY_SYSTEM_VAR(status, dat_mem_temp);
     DAT_CPY_SYSTEM_VAR(status, dat_mem_ads);
     DAT_CPY_SYSTEM_VAR(status, dat_mem_eps);
@@ -398,6 +404,12 @@ void dat_print_status(dat_status_t *status)
     DAT_PRINT_SYSTEM_VAR(status, dat_eps_cur_sun);       ///< Current from boost converters [mA]
     DAT_PRINT_SYSTEM_VAR(status, dat_eps_cur_sys);       ///< Current out of battery [mA]
     DAT_PRINT_SYSTEM_VAR(status, dat_eps_temp_bat0);     ///< Battery temperature sensor
+
+    DAT_PRINT_SYSTEM_VAR(status, dat_fod_ver);           ///< Software's version
+    DAT_PRINT_SYSTEM_VAR(status, dat_fod_released);      ///< Release status (1=released, 0=not released)
+    DAT_PRINT_SYSTEM_VAR(status, dat_fod_on_time);       ///< Maximum time for a deployment attempt in ms
+    DAT_PRINT_SYSTEM_VAR(status, dat_fod_attempts);      ///< Current number of attempts
+
 
     DAT_PRINT_SYSTEM_VAR(status, dat_mem_temp);
     DAT_PRINT_SYSTEM_VAR(status, dat_mem_ads);

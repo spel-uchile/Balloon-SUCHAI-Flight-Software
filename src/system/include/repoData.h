@@ -144,6 +144,12 @@ typedef enum dat_system {
     dat_eps_cur_sys,              ///< Current from the battery [mA]
     dat_eps_temp_bat0,            ///< Battery temperature sensor
 
+    /// FOD: Femto-satellite orbital deployer
+    dat_fod_ver,                  ///< Software's version
+    dat_fod_released,             ///< Release status (1 = released, 0 = not released)
+    dat_fod_on_time,              ///< Maximum time for a deployment attempt in ms
+    dat_fod_attempts,             ///< Current number of attempts
+
     /// Memory: Current payload memory addresses
     dat_mem_temp,                 ///< Temperature data index
     dat_mem_ads,                  ///< ADS data index
@@ -228,6 +234,12 @@ typedef struct __attribute__((packed)) dat_status_s {
     uint32_t dat_eps_cur_sys;       ///< Current out of battery [mA]
     uint32_t dat_eps_temp_bat0;     ///< Battery temperature sensor
 
+    /// FOD: Femto-satellite orbital deployer
+    float dat_fod_ver;              ///< Software's version
+    int dat_fod_released;           ///< Release status (1=released, 0=not released)
+    int dat_fod_on_time;            ///< Maximum time for a deployment attempt in ms
+    int dat_fod_attempts;           ///< Current number of attempts
+
     /// Memory: Current payload memory address
     uint32_t dat_mem_temp;          ///< Temperature data index
     uint32_t dat_mem_ads;           ///< ADS data index
@@ -276,6 +288,7 @@ typedef enum payload_id {
     gps_sensors,            ///< GPS sensors
     prs_sensors,            ///< PRS sensors
     dpl_sensors,            ///< DPL sensors
+    fod_sensors,            ///< FOD sensors
     //custom_sensor,           ///< Add custom sensors here
     last_sensor             ///< Dummy element, the amount of payload variables
 } payload_id_t;
@@ -349,6 +362,16 @@ typedef struct dpl_data {
     int timestamp;
     int port_status;
 } dpl_data_t;
+
+/**
+ * Struct for storing data collected by the FOD payload.
+ */
+typedef struct fod_data {
+    float ver;
+    int released;
+    int on_time;
+    int attempts;
+} fod_data_t;
 
 
 extern struct map {
