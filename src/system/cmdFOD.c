@@ -84,6 +84,7 @@ int fod_get_status(char *fmt, char *params, int nparams) {
 	//delay(20);
 	fod_i2c_read(status, 2);
 	sscanf(status, "%d", &released);
+	dat_set_system_var(dat_fod_released, released);
 	LOGI(tag, "Released: %d", released);
 	return CMD_OK;
     }
@@ -117,21 +118,25 @@ int set_on_time(char *fmt, char *params, int nparams) {
 
 int fod_get_config(char *fmt, char *params, int nparams) {
     LOGI(tag, "Getting FOD's configuration");
-    fod_i2c_write(GET_CONFIG, fmt, NULL);
-    char buf[14];
-    float ver;
-    int released;
-    int on_time;
-    int attempts;
-    //delay(30);
-    fod_i2c_read(buf, 14);
-    sscanf(buf, "%f %d %d %d", &ver, &released, &on_time, &attempts);
-
-    struct fod_data data_fod = {ver, released, on_time, attempts};
-    dat_add_payload_sample(&data_fod, fod_sensors);
-    LOGI(tag,
-         "\nReading FOD data:\nVersion: %f\nReleased: %d\nOn time: %d ms\nAttempts: %d",
-	 ver, released, on_time, attempts);
+    if (fod_i2c_write(GET_CONFIG, fmt, NULL)) {
+        char buf[14];
+        float ver;
+        int released;
+        int on_time;
+        int attempts;
+        //delay(30);
+        fod_i2c_read(buf, 14);
+        sscanf(buf, "%f %d %d %d", &ver, &released, &on_time, &attempts);
+        dat_set_system_var(dat_fod_ver, ver);
+        dat_set_system_var(dat_fod_released, released);
+        dat_set_system_var(dat_fod_on_time, on_time);
+        dat_set_system_var(dat_fod_attempts, attempts);
+        LOGI(tag,
+             "\nReading FOD data:\nVersion: %f\nReleased: %d\nOn time: %d ms\nAttempts: %d",
+             ver, released, on_time, attempts);
+    	return CMD_OK;
+    }
+    return CMD_FAIL;
 }
 
 int fod_get_version(char *fmt, char *params, int nparams) {
@@ -142,6 +147,7 @@ int fod_get_version(char *fmt, char *params, int nparams) {
 	//delay(20);
 	fod_i2c_read(buf, 5);
 	sscanf(buf, "%f", &ver);
+	dat_set_system_var(dat_fod_ver, ver);
 	LOGI(tag, "FOD's version: %f", ver);
 	return CMD_OK;
     }
