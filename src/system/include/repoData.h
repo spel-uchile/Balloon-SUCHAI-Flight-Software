@@ -167,6 +167,7 @@ typedef enum dat_system {
     dat_mem_ack_gps,                  ///< GPS data index acknowledge
     dat_mem_ack_prs,                  ///< PRS data index acknowledge
     dat_mem_ack_dpl,                  ///< DPL data index acknowledge
+    dat_mem_ack_fod,                  ///< FOD data index acknowledge
 
     /// Add custom status variables here
     dat_balloon_phase,          ///< Balloon phase (0: (A0) base, 1: (A) ascend, 2: (B) equilibrium, 3: (B1) deploy1, 4: (B2) deploy2, 5: (C) descend, 6: (C1) landing).
@@ -257,6 +258,7 @@ typedef struct __attribute__((packed)) dat_status_s {
     uint32_t dat_mem_ack_gps;       ///< GPS data index acknowledge
     uint32_t dat_mem_ack_prs;       ///< PRS data index acknowledge
     uint32_t dat_mem_ack_dpl;       ///< DPL data index acknowledge
+    uint32_t dat_mem_ack_fod;       ///< FOD data index acknowledge
 
     /// Add custom status variables here
     //uint32_t dat_custom;          ///< Variable description

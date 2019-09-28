@@ -46,7 +46,8 @@ struct map data_map[last_sensor] = {
         { "langmuir_data", (uint16_t) (sizeof(langmuir_data_t)), dat_mem_lang, dat_mem_ack_lang, "%u %f %f %f %d", "timestamp sweep_voltage plasma_voltage plasma_temperature particles_counter"},
         { "gps_data",      (uint16_t) (sizeof(gps_data_t)), dat_mem_gps, dat_mem_ack_gps, "%u %f %f %f %f %f %d %d", "timestamp latitude longitude height velocity_x velocity_y satellites_number mode"},
         { "prs_data",      (uint16_t) (sizeof(prs_data_t)), dat_mem_prs, dat_mem_ack_prs, "%u %f %f %f", "timestamp pressure temperature height"},
-        { "dpl_data",      (uint16_t) (sizeof(dpl_data_t)), dat_mem_dpl, dat_mem_ack_dpl, "%u %d %d", "timestamp port_status"}
+        { "dpl_data",      (uint16_t) (sizeof(dpl_data_t)), dat_mem_dpl, dat_mem_ack_dpl, "%u %d %d", "timestamp port_status"},
+	{ "fod_data",      (uint16_t) (sizeof(fod_data_t)), dat_mem_fod, dat_mem_ack_fodm "%u %f %d %d %d", "timestamp ver released on_time attempts"}
 };
 
 void initialize_payload_vars(){
@@ -352,6 +353,7 @@ void dat_status_to_struct(dat_status_t *status)
     DAT_CPY_SYSTEM_VAR(status, dat_mem_gps);
     DAT_CPY_SYSTEM_VAR(status, dat_mem_prs);
     DAT_CPY_SYSTEM_VAR(status, dat_mem_dpl);
+    DAT_CPY_SYSTEM_VAR(status, dat_mem_fod);
 
     DAT_CPY_SYSTEM_VAR(status, dat_mem_ack_temp);
     DAT_CPY_SYSTEM_VAR(status, dat_mem_ack_ads);
@@ -360,6 +362,7 @@ void dat_status_to_struct(dat_status_t *status)
     DAT_CPY_SYSTEM_VAR(status, dat_mem_ack_gps);
     DAT_CPY_SYSTEM_VAR(status, dat_mem_ack_prs);
     DAT_CPY_SYSTEM_VAR(status, dat_mem_ack_dpl);
+    DAT_CPY_SYSTEM_VAR(status, dat_mem_ack_fod);
 
 }
 
@@ -418,6 +421,7 @@ void dat_print_status(dat_status_t *status)
     DAT_PRINT_SYSTEM_VAR(status, dat_mem_gps);
     DAT_PRINT_SYSTEM_VAR(status, dat_mem_prs);
     DAT_PRINT_SYSTEM_VAR(status, dat_mem_dpl);
+    DAT_PRINT_SYSTEM_VAR(status, dat_mem_fod);
 
     DAT_PRINT_SYSTEM_VAR(status, dat_mem_ack_temp);
     DAT_PRINT_SYSTEM_VAR(status, dat_mem_ack_ads);
@@ -426,6 +430,7 @@ void dat_print_status(dat_status_t *status)
     DAT_PRINT_SYSTEM_VAR(status, dat_mem_ack_gps);
     DAT_PRINT_SYSTEM_VAR(status, dat_mem_ack_prs);
     DAT_PRINT_SYSTEM_VAR(status, dat_mem_ack_dpl);
+    DAT_PRINT_SYSTEM_VAR(status, dat_mem_ack_fod);
 }
 
 #if SCH_STORAGE_MODE == 0
