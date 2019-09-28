@@ -24,9 +24,9 @@
 static const char* tag = "cmdFOD";
 char *dev_i2c_1 = (char*)"/dev/i2c-1";
 int addr = 0x07;
+int timeout_ms = 1000;
 
 void cmd_fod_init(void) {
-    #ifdef LINUX
     cmd_add("fod_update_data", fod_update_data, "%d %d %d %d %f %f %f", 7);
     cmd_add("fod_send_beacon", fod_send_beacon, "", 0);
     cmd_add("fod_deploy", deploy_femtosats, "", 0);
@@ -38,11 +38,6 @@ void cmd_fod_init(void) {
     cmd_add("fod_enable_low_power", enable_low_power_mode, "", 0);
     cmd_add("fod_disable_low_power", disable_low_power_mode, "", 0);
     cmd_add("fod_help", fod_help, "", 0);
-    #endif
-
-    #ifdef NANOMIND
-        //TO DO
-    #endif
 }
 
 int fod_update_data(char *fmt, char *params, int nparams) {
@@ -173,6 +168,7 @@ int fod_help(char *fmt, char *params, int nparams) {
     return CMD_OK;
 }
 
+#ifdef LINUX
 int fod_i2c_read(char* buf, uint32_t len) {
     int i2cHandle;
     if ((i2cHandle = open(dev_i2c_1, O_RDWR)) < 0) {
@@ -226,3 +222,35 @@ int fod_i2c_write(int cmd, char *fmt, char params[]) {
 	return CMD_OK;
     }
 }
+#endif
+
+#ifdef NANOMIND
+int fod_i2c_read(char* buf, uint32_t len) {
+    uint8_t tx_buf[1];
+    gs_i2c_master_transaction(GSSB_TWI_HANDLER, addr,
+		              tx_buf, 1,
+		              buf, len, timeout_ms);
+    return CMD_OK;
+}
+
+int fod_i2c_write(int cmd, char *fmt, char params[]) {
+    uint8_t rx_buf[1];
+    if (params == NULL) {
+	char data[2];
+	sprintf(data, "%d", cmd);
+	gs_i2c_master_transaction(GSSB_TWI_HANDLER, addr,
+			          data, sizeof(data),
+		                  rx_buf, 1, timeout_ms);
+    }
+    else {
+    	char new_fmt[2 + sizeof(fmt)];
+	sprintf(new_fmt, "%s %s", "%d", fmt);
+	char data[sizeof(cmd) + 1 + strlen(params)];
+	sprintf(data, "%d %s", cmd, params);
+	gs_i2c_master_transaction(GSSB_TWI_HANDLER, addr,
+			          data, strlen(data),
+		                  rx_buf, 1, timeout_ms);
+    }
+    return CMD_OK;
+}
+#endif

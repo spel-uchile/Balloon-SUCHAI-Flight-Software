@@ -23,6 +23,10 @@
     #include <unistd.h>
 #endif
 
+#ifdef NANOMIND
+    #include "drivers.h"
+#endif
+
 #define UPDATE_DATA 0
 #define SEND_BEACON 1
 #define DEPLOY_FEMTOSATS 2
