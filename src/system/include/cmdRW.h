@@ -12,9 +12,9 @@
 #define CMD_RW_H
 
 #include "config.h"
+#include "osDelay.h"
 
 #ifdef LINUX
-    //#include <bcm2835.h>
     #include <stdint.h>
     #include <fcntl.h>
     #include <sys/ioctl.h>
@@ -23,14 +23,26 @@
     #include <unistd.h>
 #endif
 
-
 #define MAX_LEN 32
 #define READ_LEN 2
 #define OBC_ADDR 0x10
 #define BIuC_ADDR 0x11
-#define SAMPLE_SPEED_CODE 21
-#define SAMPLE_CURRENT_CODE 22
-#define SET_SPEED_CODE 23
+
+#define SAMPLE_SPEED_CODE_MOTOR1 21
+#define SAMPLE_CURRENT_CODE_MOTOR1 22
+#define SET_SPEED_CODE_MOTOR1 23
+
+#define SAMPLE_SPEED_CODE_MOTOR2 24
+#define SAMPLE_CURRENT_CODE_MOTOR2 25
+#define SET_SPEED_CODE_MOTOR2 26
+
+#define SAMPLE_SPEED_CODE_MOTOR3 27
+#define SAMPLE_CURRENT_CODE_MOTOR3 28
+#define SET_SPEED_CODE_MOTOR3 29
+
+#define MOTOR1_ID 1
+#define MOTOR2_ID 2
+#define MOTOR3_ID 3
 
 #define DATA_PACKET_SZ 8
 typedef struct{

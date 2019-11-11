@@ -34,21 +34,21 @@ enum phase_n{
 };
 
 /*test phases*/
-/*const int  RW_MIN_PHASE_A  =  1;
+const int  RW_MIN_PHASE_A  =  1;
 const int  RW_MIN_PHASE_A1 =  3;
 const int  RW_MIN_PHASE_B  = 6;
 const int  RW_MIN_PHASE_B1 = 9;
 const int  RW_MIN_PHASE_B2 = 12;
 const int  RW_MIN_PHASE_C  = 15;
-const int  RW_MIN_PHASE_C1 = 18;*/
+const int  RW_MIN_PHASE_C1 = 18;
 
-const int  RW_MIN_PHASE_A  =  10;
+/*const int  RW_MIN_PHASE_A  =  10;
 const int  RW_MIN_PHASE_A1 =  41;
 const int  RW_MIN_PHASE_B  = 72;
 const int  RW_MIN_PHASE_B1 = 103;
 const int  RW_MIN_PHASE_B2 = 134;
 const int  RW_MIN_PHASE_C  = 165;
-const int  RW_MIN_PHASE_C1 = 196;
+const int  RW_MIN_PHASE_C1 = 196;*/
 
 void taskRWTest(void *param)
 {
@@ -90,90 +90,90 @@ void taskRWTest(void *param)
             -get_current
             -set_speed
         */
-        if(phase == phase_a0) {
+        /*if(phase == phase_a0) {
             if ((elapsed_sec % _01min_check) == 0) {
                 cmd_t *cmd_set_speed = cmd_get_str("rw_set_speed");
-                cmd_add_params_str(cmd_set_speed, "100");
+                cmd_add_params_str(cmd_set_speed, "1 100");
                 cmd_send(cmd_set_speed);
             }
         }
 
-        /**
+        *//**
          * In Phase A1: Set speed at
-        */
+        *//*
         if(phase == phase_a1) {
             if ((elapsed_sec % _01min_check) == 0) {
                 cmd_t *cmd_set_speed = cmd_get_str("rw_set_speed");
-                cmd_add_params_str(cmd_set_speed, "158");
+                cmd_add_params_str(cmd_set_speed, "1 158");
                 cmd_send(cmd_set_speed);
             }
         }
 
-        /**
+        *//**
          * In Phase A:
-        */
+        *//*
         if(phase == phase_a) {
             if ((elapsed_sec % _01min_check) == 0) {
                 cmd_t *cmd_set_speed = cmd_get_str("rw_set_speed");
-                cmd_add_params_str(cmd_set_speed, "217");
+                cmd_add_params_str(cmd_set_speed, "1 217");
                 cmd_send(cmd_set_speed);
             }
         }
 
-        /**
+        *//**
          * In Phase B:
-        */
+        *//*
         if(phase == phase_b) {
             if ((elapsed_sec % _01min_check) == 0) {
                 cmd_t *cmd_set_speed = cmd_get_str("rw_set_speed");
-                cmd_add_params_str(cmd_set_speed, "276");
+                cmd_add_params_str(cmd_set_speed, "1 276");
                 cmd_send(cmd_set_speed);
             }
         }
 
-        /**
+        *//**
          * In Phase B1:
-        */
+        *//*
         if(phase == phase_b1) {
             if ((elapsed_sec % _01min_check) == 0) {
                 cmd_t *cmd_set_speed = cmd_get_str("rw_set_speed");
-                cmd_add_params_str(cmd_set_speed, "334");
+                cmd_add_params_str(cmd_set_speed, "1 334");
                 cmd_send(cmd_set_speed);
             }
         }
 
-        /**
+        *//**
          * In Phase B2:
-        */
+        *//*
         if(phase == phase_b2) {
             if ((elapsed_sec % _01min_check) == 0) {
                 cmd_t *cmd_set_speed = cmd_get_str("rw_set_speed");
-                cmd_add_params_str(cmd_set_speed, "393");
+                cmd_add_params_str(cmd_set_speed, "1 393");
                 cmd_send(cmd_set_speed);
             }
         }
 
-        /**
+        *//**
          * In Phase C:
-        */
+        *//*
         if(phase == phase_c) {
             if ((elapsed_sec % _01min_check) == 0) {
                 cmd_t *cmd_set_speed = cmd_get_str("rw_set_speed");
-                cmd_add_params_str(cmd_set_speed, "452");
+                cmd_add_params_str(cmd_set_speed, "1 452");
                 cmd_send(cmd_set_speed);
             }
         }
 
-        /**
+        *//**
          * In Phase C1:
-        */
+        *//*
         if(phase == phase_c1) {
             if ((elapsed_sec % _01min_check) == 0) {
                 cmd_t *cmd_set_speed = cmd_get_str("rw_set_speed");
-                cmd_add_params_str(cmd_set_speed, "511");
+                cmd_add_params_str(cmd_set_speed, "1 511");
                 cmd_send(cmd_set_speed);
             }
-        }
+        }*/
 
         /**
          * Always to do list
@@ -189,6 +189,12 @@ void taskRWTest(void *param)
             cmd_t *cmd_get_current = cmd_get_str("rw_get_current");
             cmd_send(cmd_get_current);
         }*/
+
+        if ((elapsed_sec % 1) == 0) {
+            cmd_t *cmd_set_speed = cmd_get_str("rw_set_speed");
+            cmd_add_params_str(cmd_set_speed, "1 158");
+            cmd_send(cmd_set_speed);
+        }
 
         /* 1 min actions, update minutes alive counter*/
         if((elapsed_sec % _01min_check) == 0)

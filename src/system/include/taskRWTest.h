@@ -12,6 +12,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "osDelay.h"
 #include "config.h"
 
 #if SCH_COMM_ENABLE
